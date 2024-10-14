@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func ConnectToDatabase() {
 
@@ -34,7 +34,9 @@ func ConnectToDatabase() {
 		return
 	}
 
+	DB = db
+
 	// Connection successful
-	fmt.Println("Database connected:", db)
+	fmt.Println("Database connected!")
 
 }
