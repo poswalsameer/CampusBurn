@@ -17,7 +17,7 @@ func main() {
 	}
 
 	// Perform migration
-	err := dbConnection.DB.AutoMigrate(&model.User{})
+	err := dbConnection.DB.AutoMigrate(&model.User{}, &model.Post{}, &model.Comment{})
 	if err != nil {
 		fmt.Println("Error during migration:", err)
 	} else {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"campusburn-backend/controller"
 	"campusburn-backend/dbConnection"
 	"log"
 
@@ -24,10 +25,8 @@ func main() {
 	// creating a app just like we do in express
 	app := fiber.New()
 
-	// Creating first route
-	// app.Get("/", func(c *fiber.Ctx) error {
-	// 	return c.SendString("First time learning Go Fiber")
-	// })
+	// USER CREATION ROUTE
+	app.Post("/createUser", controller.UserCreation)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")
