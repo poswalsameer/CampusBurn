@@ -29,7 +29,7 @@ func main() {
 	app.Post("/auth/sign-up", controller.RegisterUser)
 
 	// LOGIN ROUTE
-	// app.Post("/auth/sign-in", controller.LoginUser)
+	app.Post("/auth/sign-in", controller.LoginUser)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")

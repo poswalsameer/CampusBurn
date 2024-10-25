@@ -27,7 +27,24 @@ func RegisterUser(c *fiber.Ctx) error {
 	// CHECKING IF THE INCOMING DATA FROM THE REQUEST IS OKAY OR NOT
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"Error": "Invalid request body",
+		})
+	}
+
+	// VALIDATING THE INCOMING DATA
+	if user.Email == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Error": "Email is required for sign-up",
+		})
+	}
+	if user.Username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Error": "Username is required for sign-up",
+		})
+	}
+	if user.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Error": "Password is required for sign-up",
 		})
 	}
 
@@ -40,8 +57,6 @@ func RegisterUser(c *fiber.Ctx) error {
 			"Error": "User already exists",
 		})
 	}
-
-	// TODO: I have to write a function (probably middleware) to hash the password entered by the user to make sure that only the hashed password goes into the database.
 
 	//Hashing the password before saving it into the database
 	hashedPassword, err := middleware.HashPassword(user.Password)
