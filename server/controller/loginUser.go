@@ -48,15 +48,6 @@ func LoginUser(c *fiber.Ctx) error {
 	var existingUser model.User
 	userInDB := dbConnection.DB.Where("Email = ?", user.Email).First(&existingUser)
 
-	// if userInDB.Error != nil {
-
-	// 	fmt.Println("Error fetching user:", userInDB.Error)
-
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"Error": "Getting some error while fetching the user records",
-	// 	})
-	// }
-
 	if userInDB.RowsAffected == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Error": "User does not exists",
@@ -73,8 +64,18 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// CREATE JWT TOKEN FOR THE USER
+	token, err := middleware.GenerateJWT(user.Email)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Error": err,
+		})
+	}
+
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"Message": "Login successful",
+		"Token":   token,
 	})
 
 }
