@@ -3,6 +3,7 @@ package main
 import (
 	"campusburn-backend/controller"
 	"campusburn-backend/dbConnection"
+	"campusburn-backend/middleware"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -30,6 +31,9 @@ func main() {
 
 	// LOGIN ROUTE
 	app.Post("/auth/sign-in", controller.LoginUser)
+
+	// CREATE POST ROUTE
+	app.Post("/createPost", middleware.AuthRequired, controller.CreatePost)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")

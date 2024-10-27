@@ -5,6 +5,7 @@ import (
 	"campusburn-backend/middleware"
 	"campusburn-backend/model"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -47,6 +48,9 @@ func RegisterUser(c *fiber.Ctx) error {
 			"Error": "Password is required for sign-up",
 		})
 	}
+
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	// FINDING IF USER ALREADY EXISTS OR NOT
 	result := dbConnection.DB.Where("Email = ?", user.Email).Limit(1).Find(&model.User{})

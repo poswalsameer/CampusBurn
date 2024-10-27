@@ -4,6 +4,7 @@ import (
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
 	"campusburn-backend/model"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -72,6 +73,15 @@ func LoginUser(c *fiber.Ctx) error {
 			"Error": err,
 		})
 	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
+		SameSite: "Strict",
+		Secure:   true,
+	})
 
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"Message": "Login successful",
