@@ -49,9 +49,6 @@ func RegisterUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
-
 	// FINDING IF USER ALREADY EXISTS OR NOT
 	result := dbConnection.DB.Where("Email = ?", user.Email).Limit(1).Find(&model.User{})
 
@@ -72,6 +69,8 @@ func RegisterUser(c *fiber.Ctx) error {
 	}
 
 	user.Password = hashedPassword
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	// SAVING THE USER INTO THE DATABASE
 	createdUser := dbConnection.DB.Create(&user)
@@ -88,9 +87,10 @@ func RegisterUser(c *fiber.Ctx) error {
 
 	// IF USER CREATED, THEN SENDING SUCCESS RESPONSE
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"id":       user.ID,
-		"username": user.Username,
-		"email":    user.Email,
+		"id":        user.ID,
+		"username":  user.Username,
+		"email":     user.Email,
+		"authToken": user.AuthToken,
 	})
 
 }

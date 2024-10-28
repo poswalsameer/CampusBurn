@@ -17,6 +17,7 @@ FLOW TO CREATE POST BY THE USER
 3. Then get the body from the req by the client.
 4. Make sure that the description is not empty, if empty then return error response.
 5. Set likeCount and dislikeCount to 0 by default.
+6. Get the ID of the user from the database using email we got from cookies
 6. Save this post into the database and also in the table of the user who created this post.
 7. Handle all the errors gracefully and return response accordingly.
 */

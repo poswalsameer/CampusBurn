@@ -8,6 +8,7 @@ type User struct {
 	Email        string
 	Password     string
 	ProfilePhoto string
+	AuthToken    string `gorm:"default:''"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	Posts        []Post

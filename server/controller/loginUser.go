@@ -74,6 +74,16 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
+	// SETTING THE TOKEN IN DATABASE
+	existingUser.AuthToken = token
+
+	if err := dbConnection.DB.Save(&existingUser).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Error": "Failed to update AuthToken in database",
+		})
+	}
+
+	// SETTING THE TOKEN IN COOKIES
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
@@ -84,8 +94,9 @@ func LoginUser(c *fiber.Ctx) error {
 	})
 
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
-		"Message": "Login successful",
-		"Token":   token,
+		"Message":   "Login successful",
+		"email":     existingUser.Email,
+		"authToken": existingUser.AuthToken,
 	})
 
 }
