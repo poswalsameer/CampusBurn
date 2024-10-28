@@ -9,7 +9,7 @@ type Post struct {
 	UpdatedAt    time.Time
 	UserID       uint
 	User         User
-	LikeCount    uint64
-	DislikeCount uint64
+	LikeCount    uint64 `gorm:"default:0"`
+	DislikeCount uint64 `gorm:"default:0"`
 	Comments     []Comment
 }
