@@ -41,6 +41,8 @@ func main() {
 	// DELETE POST ROUTE
 	app.Post("/deletePost", middleware.AuthRequired, controller.DeletePost)
 
+	app.Post("/updatePost", middleware.AuthRequired, controller.UpdatePost)
+
 	// setting up the server on port 3000
 	app.Listen(":3000")
 }
