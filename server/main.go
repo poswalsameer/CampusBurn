@@ -35,6 +35,8 @@ func main() {
 	// LOGOUT USER ROUTE
 	app.Post("/auth/sign-out", middleware.AuthRequired, controller.LogoutUser)
 
+	app.Post("/auth/deleteUser", middleware.AuthRequired, controller.DeleteUser)
+
 	// CREATE POST ROUTE
 	app.Post("/createPost", middleware.AuthRequired, controller.CreatePost)
 
