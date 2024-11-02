@@ -26,24 +26,20 @@ func main() {
 	// creating a app just like we do in express
 	app := fiber.New()
 
-	// USER CREATION ROUTE
+	// AUTH RELATED CONTROLLERS
 	app.Post("/auth/sign-up", controller.RegisterUser)
-
-	// LOGIN ROUTE
 	app.Post("/auth/sign-in", controller.LoginUser)
-
-	// LOGOUT USER ROUTE
 	app.Post("/auth/sign-out", middleware.AuthRequired, controller.LogoutUser)
-
 	app.Post("/auth/deleteUser", middleware.AuthRequired, controller.DeleteUser)
 
-	// CREATE POST ROUTE
+	// CONTROLLERS RELATED TO POST
 	app.Post("/createPost", middleware.AuthRequired, controller.CreatePost)
-
-	// DELETE POST ROUTE
 	app.Post("/deletePost", middleware.AuthRequired, controller.DeletePost)
-
 	app.Post("/updatePost", middleware.AuthRequired, controller.UpdatePost)
+	app.Post("/likePost", controller.AddLike)
+	app.Post("/dislikePost", controller.AddDislike)
+	app.Post("/removeLike", controller.RemoveLike)
+	app.Post("/removeDislike", controller.RemoveDislike)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")
