@@ -1,6 +1,7 @@
 import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import {Poppins} from 'next/font/google';
 import "./globals.css";
 
 const geistSans = localFont({
@@ -12,6 +13,12 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+});
+
+const poppins = Poppins({
+  weight: "300",
+  style: "normal",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +35,7 @@ export default function RootLayout({
     <ClerkProvider>
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={poppins.className}
       >
         {children}
       </body>
