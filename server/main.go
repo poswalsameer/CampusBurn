@@ -44,6 +44,8 @@ func main() {
 
 	// CONTROLLERS RELATED TO COMMENTS
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)
+	app.Post("/editComment", middleware.AuthRequired, comments.EditComment)
+	app.Post("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")
