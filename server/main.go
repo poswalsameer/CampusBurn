@@ -2,6 +2,7 @@ package main
 
 import (
 	"campusburn-backend/controller"
+	"campusburn-backend/controller/comments"
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
 	"log"
@@ -40,6 +41,9 @@ func main() {
 	app.Post("/dislikePost", controller.AddDislike)
 	app.Post("/removeLike", controller.RemoveLike)
 	app.Post("/removeDislike", controller.RemoveDislike)
+
+	// CONTROLLERS RELATED TO COMMENTS
+	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")

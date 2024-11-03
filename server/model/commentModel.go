@@ -9,6 +9,8 @@ type Comment struct {
 	UpdatedAt      time.Time
 	PostID         uint
 	Post           Post
+	UserID         uint
+	User           User
 	LikeCount      uint64
 	DislikeCount   uint64
 }
