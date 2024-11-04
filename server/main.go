@@ -46,6 +46,10 @@ func main() {
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)
 	app.Post("/editComment", middleware.AuthRequired, comments.EditComment)
 	app.Post("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
+	app.Post("/likeComment", middleware.AuthRequired, comments.LikeComment)
+	app.Post("/dislikeComment", middleware.AuthRequired, comments.DislikeComment)
+	app.Post("/removeCommentLike", middleware.AuthRequired, comments.RemoveLikeComment)
+	app.Post("/removeCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
 
 	// setting up the server on port 3000
 	app.Listen(":3000")
