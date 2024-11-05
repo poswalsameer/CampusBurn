@@ -1,4 +1,4 @@
-package controller
+package posts
 
 import (
 	"campusburn-backend/dbConnection"

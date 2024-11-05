@@ -1,8 +1,9 @@
 package main
 
 import (
-	"campusburn-backend/controller"
 	"campusburn-backend/controller/comments"
+	"campusburn-backend/controller/posts"
+	"campusburn-backend/controller/users"
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
 	"log"
@@ -28,19 +29,19 @@ func main() {
 	app := fiber.New()
 
 	// AUTH RELATED CONTROLLERS
-	app.Post("/auth/sign-up", controller.RegisterUser)
-	app.Post("/auth/sign-in", controller.LoginUser)
-	app.Post("/auth/sign-out", middleware.AuthRequired, controller.LogoutUser)
-	app.Post("/auth/deleteUser", middleware.AuthRequired, controller.DeleteUser)
+	app.Post("/auth/sign-up", users.RegisterUser)
+	app.Post("/auth/sign-in", users.LoginUser)
+	app.Post("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
+	app.Post("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
 
 	// CONTROLLERS RELATED TO POST
-	app.Post("/createPost", middleware.AuthRequired, controller.CreatePost)
-	app.Post("/deletePost", middleware.AuthRequired, controller.DeletePost)
-	app.Post("/updatePost", middleware.AuthRequired, controller.UpdatePost)
-	app.Post("/likePost", controller.AddLike)
-	app.Post("/dislikePost", controller.AddDislike)
-	app.Post("/removeLike", controller.RemoveLike)
-	app.Post("/removeDislike", controller.RemoveDislike)
+	app.Post("/createPost", middleware.AuthRequired, posts.CreatePost)
+	app.Post("/deletePost", middleware.AuthRequired, posts.DeletePost)
+	app.Post("/updatePost", middleware.AuthRequired, posts.UpdatePost)
+	app.Post("/likePost", posts.AddLike)
+	app.Post("/dislikePost", posts.AddDislike)
+	app.Post("/removeLike", posts.RemoveLike)
+	app.Post("/removeDislike", posts.RemoveDislike)
 
 	// CONTROLLERS RELATED TO COMMENTS
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)

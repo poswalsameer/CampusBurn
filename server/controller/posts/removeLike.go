@@ -1,4 +1,4 @@
-package controller
+package posts
 
 import (
 	"campusburn-backend/dbConnection"
@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func AddDislike(c *fiber.Ctx) error {
+func RemoveLike(c *fiber.Ctx) error {
 
 	var post model.Post
 	if parsingError := c.BodyParser(&post); parsingError != nil {
@@ -18,25 +18,24 @@ func AddDislike(c *fiber.Ctx) error {
 
 	var thisPost model.Post
 	searchPostError := dbConnection.DB.Where("ID = ?", post.ID).First(&thisPost).Error
-
 	if searchPostError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Error": "Post not found in the DB",
 		})
 	}
 
-	thisPost.DislikeCount = thisPost.DislikeCount + 1
+	thisPost.LikeCount = thisPost.LikeCount - 1
 
-	savePostError := dbConnection.DB.Save(&thisPost).Error
-	if savePostError != nil {
+	postSaveError := dbConnection.DB.Save(&thisPost).Error
+	if postSaveError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"Error": "Error while saving the post in the DB",
+			"Error": "Error while saving the like count in database",
 		})
 	}
 
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
-		"Message":       "Dislike added successfully",
-		"Dislike count": thisPost.DislikeCount,
+		"Message":    "Like removed successfully",
+		"Like count": thisPost.LikeCount,
 	})
 
 }
