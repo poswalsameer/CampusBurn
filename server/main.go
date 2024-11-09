@@ -37,6 +37,7 @@ func main() {
 
 	// THIRD-PARTY SERVICE RELATED CONTROLLERS
 	app.Post("/uploadImage", middleware.AuthRequired, utils.UploadImageToCloudinary)
+	app.Get("/getImage", middleware.AuthRequired, utils.FetchImageFromCloudinary)
 
 	// CONTROLLERS RELATED TO POST
 	app.Post("/createPost", middleware.AuthRequired, posts.CreatePost)
