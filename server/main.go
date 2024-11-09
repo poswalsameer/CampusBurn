@@ -6,6 +6,7 @@ import (
 	"campusburn-backend/controller/users"
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
+	"campusburn-backend/utils"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,6 +34,9 @@ func main() {
 	app.Post("/auth/sign-in", users.LoginUser)
 	app.Post("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
 	app.Post("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
+
+	// THIRD-PARTY SERVICE RELATED CONTROLLERS
+	app.Post("/uploadImage", middleware.AuthRequired, utils.UploadImageToCloudinary)
 
 	// CONTROLLERS RELATED TO POST
 	app.Post("/createPost", middleware.AuthRequired, posts.CreatePost)
