@@ -1,7 +1,13 @@
+'use client';
+
 import { SignInButton } from "@clerk/nextjs";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+
+  const router = useRouter()
+
   return (
     <div
       className="h-screen w-screen flex flex-col justify-center items-center gap-y-24
@@ -30,9 +36,12 @@ export default function Home() {
       <div className="flex justify-center items-center gap-x-7">
         <button
         className="h-10 w-28 bg-blue-600 text-white font-bold rounded-md"
+
+        onClick={() => router.push("/sign-up")}
         >Sign up</button>
         <button
         className="h-10 w-28 bg-white text-blue-600 font-bold rounded-md"
+        onClick={ () => router.push("/sign-in") }
         >
           Log in
         </button>
