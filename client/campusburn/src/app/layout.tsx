@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import {Poppins} from 'next/font/google';
+import { Analytics } from "@vercel/analytics/react"
 import "./globals.css";
 
 const geistSans = localFont({
@@ -38,6 +39,7 @@ export default function RootLayout({
         className={poppins.className}
       >
         {children}
+        <Analytics />
       </body>
     </html>
     </ClerkProvider>
