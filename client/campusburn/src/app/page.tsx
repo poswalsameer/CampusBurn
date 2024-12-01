@@ -82,7 +82,7 @@ export default function Home() {
         sm:flex sm:justify-end sm:text-white sm:text-base sm:-mr-7 sm:my-2
         md:flex md:justify-end md:text-white md:text-base md:-mr-7 md:my-2
         lg:flex lg:justify-end lg:text-white lg:text-base lg:mr-7 lg:my-2">
-          <p className="font-extrabold sm:font-bold text-blue-500">
+          <p className="font-extrabold sm:font-extrabold text-blue-500">
             I hate my college, and I know you hate yours too!
           </p>
         </div>
