@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import {Poppins} from 'next/font/google';
+import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@vercel/analytics/react"
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={poppins.className}
       >
         {children}
+        <Toaster />
         <Analytics />
       </body>
     </html>

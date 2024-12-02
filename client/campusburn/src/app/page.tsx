@@ -93,24 +93,24 @@ export default function Home() {
         md:text-white md:font-extrabold md:text-3xl md:mt-24 md:flex md:flex-row md:justify-center md:items-center md:gap-x-3
         lg:text-white lg:font-extrabold lg:text-3xl lg:mt-24 lg:flex lg:flex-row lg:justify-center lg:items-center lg:gap-x-3">
 
-          LAUNCHING SOON 
+          {/* LAUNCHING SOON 
           <CalendarClock 
           className="
           h-9 w-9
           sm:h-14 sm:w-14
           md:h-14 md:w-14
-          lg:h-16 lg:w-16 text-blue-500 " />
-          {/* <Button
+          lg:h-16 lg:w-16 text-blue-500 " /> */}
+          <Button
           className="h-10 w-28 bg-blue-600 hover:bg-white text-white hover:text-blue-600 font-bold transition-all delay-75 ease-linear rounded-md"
-          onClick={() => router.push("/sign-up")}
-          >Sign up</Button> */}
+          onClick={() => router.push("/signup")}
+          >Sign up</Button>
 
-          {/* <Button
+          <Button
           className="h-10 w-28 bg-white hover:bg-blue-600 text-blue-600 hover:text-white font-bold transition-all delay-75 ease-linear rounded-md"
-          onClick={ () => router.push("/sign-in") }
+          onClick={ () => router.push("/login") }
           >
             Log in
-          </Button> */}
+          </Button>
       </div>
 
       </div>

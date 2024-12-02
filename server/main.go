@@ -10,6 +10,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -26,8 +27,16 @@ func main() {
 		log.Fatal("Error while loading env file: ", err)
 	}
 
-	// creating a app just like we do in express
+	// CREATING A APP JUST LIKE WE DO IN EXPRESS
 	app := fiber.New()
+
+	//MIDDLEWARE FOR CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",
+		AllowMethods:     "GET,POST,PUT,DELETE",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true,
+	}))
 
 	// AUTH RELATED CONTROLLERS
 	app.Post("/auth/sign-up", users.RegisterUser)
@@ -58,5 +67,5 @@ func main() {
 	app.Post("/removeCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
 
 	// setting up the server on port 3000
-	app.Listen(":3000")
+	app.Listen(":4200")
 }
