@@ -64,7 +64,6 @@ export default function Page() {
         console.log("INSIDE THE CATCH PART: Error while logging the user");
     }
 
-    
 
   }
 
