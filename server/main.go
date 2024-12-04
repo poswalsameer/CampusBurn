@@ -43,6 +43,7 @@ func main() {
 	app.Post("/auth/sign-in", users.LoginUser)
 	app.Post("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
 	app.Post("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
+	app.Post("/sendEmail", users.SendEmail)
 
 	// THIRD-PARTY SERVICE RELATED CONTROLLERS
 	app.Post("/uploadImage", middleware.AuthRequired, utils.UploadImageToCloudinary)
