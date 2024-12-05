@@ -41,8 +41,8 @@ func main() {
 	// AUTH RELATED CONTROLLERS
 	app.Post("/auth/sign-up", users.RegisterUser)
 	app.Post("/auth/sign-in", users.LoginUser)
-	app.Post("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
-	app.Post("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
+	app.Get("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
+	app.Delete("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
 	app.Post("/sendEmail", users.SendEmail)
 
 	// THIRD-PARTY SERVICE RELATED CONTROLLERS
@@ -51,21 +51,21 @@ func main() {
 
 	// CONTROLLERS RELATED TO POST
 	app.Post("/createPost", middleware.AuthRequired, posts.CreatePost)
-	app.Post("/deletePost", middleware.AuthRequired, posts.DeletePost)
-	app.Post("/updatePost", middleware.AuthRequired, posts.UpdatePost)
+	app.Delete("/deletePost", middleware.AuthRequired, posts.DeletePost)
+	app.Put("/updatePost", middleware.AuthRequired, posts.UpdatePost)
 	app.Post("/likePost", posts.AddLike)
 	app.Post("/dislikePost", posts.AddDislike)
-	app.Post("/removeLike", posts.RemoveLike)
-	app.Post("/removeDislike", posts.RemoveDislike)
+	app.Delete("/deletePostLike", posts.RemoveLike)
+	app.Delete("/deletePostDislike", posts.RemoveDislike)
 
 	// CONTROLLERS RELATED TO COMMENTS
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)
-	app.Post("/editComment", middleware.AuthRequired, comments.EditComment)
-	app.Post("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
+	app.Put("/editComment", middleware.AuthRequired, comments.EditComment)
+	app.Delete("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
 	app.Post("/likeComment", middleware.AuthRequired, comments.LikeComment)
 	app.Post("/dislikeComment", middleware.AuthRequired, comments.DislikeComment)
-	app.Post("/removeCommentLike", middleware.AuthRequired, comments.RemoveLikeComment)
-	app.Post("/removeCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
+	app.Delete("/deleteCommentLike", middleware.AuthRequired, comments.RemoveLikeComment)
+	app.Delete("/deleteCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
 
 	// setting up the server on port 3000
 	app.Listen(":4200")
