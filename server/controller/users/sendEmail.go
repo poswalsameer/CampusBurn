@@ -1,11 +1,13 @@
 package users
 
 import (
+	"campusburn-backend/utils"
 	"crypto/rand"
 	"fmt"
 	"log"
 	"math/big"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -61,6 +63,9 @@ func SendEmail(c *fiber.Ctx) error {
 			"Error": "Error while generating the OTP",
 		})
 	}
+
+	//SAVING THE OTP IN A MAPPING WITH THE USER EMAIL
+	utils.AddOTP(body.Email, otp, time.Now().Add(5*time.Minute))
 
 	params := &resend.SendEmailRequest{
 		From:    "onboarding@resend.dev",

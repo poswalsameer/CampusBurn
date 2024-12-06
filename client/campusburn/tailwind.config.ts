@@ -62,7 +62,7 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
   	}
   },
   plugins: [
@@ -91,4 +91,4 @@ const config: Config = {
       require("tailwindcss-animate")
 ],
 };
-export default config;
+export default config as Config;
