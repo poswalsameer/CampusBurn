@@ -12,26 +12,20 @@ import {
 import FlickeringGrid from "@/components/ui/flickering-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SignUp } from "@clerk/nextjs";
 import { EyeOff, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-
-interface UserDetails {
-  email: string;
-  username: string;
-  password: string;
-}
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { updateUserDetail } from "@/reducers/userSlice";
 
 export default function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [userDetails, setUserDetails] = useState<UserDetails>({
-    email: "",
-    username: "",
-    password: "",
-  });
+  const userDetails = useSelector((state: RootState) => state.userDetails);
+  const dispatch = useDispatch();
+
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const {toast} = useToast();
   const router = useRouter();
@@ -45,24 +39,46 @@ export default function Page() {
         toast({
             title: "Every field is required",
         })
+        return;
     }
 
     console.log("Details entered by the user are: ", userDetails);
 
     try {
-    
-        const signupResponse = await axios.post("http://localhost:4200/auth/sign-up", {
-            Username: userDetails.username,
-            Email: userDetails.email,
-            Password: userDetails.password
-        })
 
-        console.log("Response coming after signup: ", signupResponse);
+      const emailVerificationResponse = await axios.post("http://localhost:4200/sendEmail", {
+        Email: userDetails.email
+      })
+
+      if(emailVerificationResponse.status === 202 ){
+        router.push("/verifyEmail");
+      }
+      else{
+        toast({
+          title: "Error while sending the email",
+        })
+        return;
+      }
 
     } 
-    catch (error) { 
-        console.log("INSIDE THE CATCH PART: Error while signing up the user");
+    catch (error) {
+      console.log("INSIDE THE CATCH: Error while sending the OTP to user");
     }
+
+    // try {
+    
+    //     const signupResponse = await axios.post("http://localhost:4200/auth/sign-up", {
+    //         Username: userDetails.username,
+    //         Email: userDetails.email,
+    //         Password: userDetails.password
+    //     })
+
+    //     console.log("Response coming after signup: ", signupResponse);
+
+    // } 
+    // catch (error) { 
+    //     console.log("INSIDE THE CATCH PART: Error while signing up the user");
+    // }
 
   }
 
@@ -122,8 +138,8 @@ export default function Page() {
                   type="email"
                   placeholder="Enter your email"
                   value={userDetails.email}
-                  onChange={(e: any) =>
-                    setUserDetails({ ...userDetails, email: e.target.value })
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    dispatch(updateUserDetail({email: e.target.value}))
                   }
                   className="bg-blue-100 rounded-md border-2 border-blue-950 font-semibold text-black placeholder-blue-950 focus:ring-0 focus:ring-offset-0"
                 />
@@ -137,8 +153,8 @@ export default function Page() {
                   type="text"
                   placeholder="Enter your username"
                   value={userDetails.username}
-                  onChange={(e: any) =>
-                    setUserDetails({ ...userDetails, username: e.target.value })
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    dispatch(updateUserDetail({username: e.target.value}))
                   }
                   className="bg-blue-100 rounded-md border-2 border-blue-950 font-semibold text-black placeholder-blue-950 focus:ring-0 focus:ring-offset-0"
                 />
@@ -153,7 +169,7 @@ export default function Page() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
                   value={userDetails.password}
-                  onChange={(e: any) => setUserDetails({...userDetails, password: e.target.value})}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => dispatch(updateUserDetail({password: e.target.value})) }
                   className="bg-blue-100 rounded-md border-2 border-blue-950 font-semibold text-black placeholder-blue-950 focus:ring-0 focus:ring-offset-0"
                 />
                 <button

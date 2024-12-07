@@ -44,6 +44,7 @@ func main() {
 	app.Get("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
 	app.Delete("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
 	app.Post("/sendEmail", users.SendEmail)
+	app.Post("/verifyEmail", users.VerifyEmail)
 
 	// THIRD-PARTY SERVICE RELATED CONTROLLERS
 	app.Post("/uploadImage", middleware.AuthRequired, utils.UploadImageToCloudinary)

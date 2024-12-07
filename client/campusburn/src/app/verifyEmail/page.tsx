@@ -10,24 +10,82 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import FlickeringGrid from "@/components/ui/flickering-grid";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 import React, { useRef, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const parentRef = useRef<HTMLDivElement | null>(null);
   const [otp, setOTP] = useState("");
+  const userDetails = useSelector((state: RootState) => state.userDetails);
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const handleVerifyOTP = (e: React.FormEvent) => {
+  const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the OTP to your server for verification
+
+    if( !otp ){
+      toast({
+        title: "OTP is required",
+      })
+      return;
+    }
+
     console.log("Submitted OTP:", otp);
+
+    try {
+      //STEPS TO TAKE:
+      // 1. Verify the OTP.
+      // 2. If verification successful, then signup the user.
+      // 3. If both verification and otp successful, then push the user to feed route
+
+      const otpVerificationResponse = await axios.post("http://localhost:4200/verifyEmail", {
+        Email: userDetails.email,
+        OTP: otp,
+      })
+
+      if( otpVerificationResponse.status === 200 ){
+        //SIGNUP THE USER AFTER EMAIL IS VERIFIED
+        await registerUser(userDetails.email, userDetails.username, userDetails.password);
+      }
+      else{
+        toast({
+          title: "Error during email verification",
+        })
+        return;
+      }
+
+    } 
+    catch (error) {
+      console.log("INSIDE THE CATCH PART: Error while verifying the OTP.");
+    }
+
   };
+
+  const registerUser = async (email: string, username: string, password: string) => {
+
+    const registerUserResponse = await axios.post("http://localhost:4200/auth/sign-up", {
+      Username: username,
+      Email: email,
+      Password: password,
+    })
+
+    if( registerUserResponse.status === 201 ){
+      router.push("/feed");
+    }
+    else{
+      toast({
+        title: "Error while registering the user",
+      })
+      return;
+    }
+
+  }
 
   useEffect(() => {
     const updateDimensions = () => {
