@@ -20,6 +20,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { updateUserDetail } from "@/reducers/userSlice";
+import LoadingSpinner from "../Loading";
 
 export default function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -30,6 +31,7 @@ export default function Page() {
   const {toast} = useToast();
   const router = useRouter();
   const parentRef = useRef<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -43,6 +45,7 @@ export default function Page() {
 
     console.log("Details entered by the user are: ", userDetails);
 
+    setIsLoading(true); 
     try {
       const emailVerificationResponse = await axios.post("http://localhost:4200/sendEmail", {
         Email: userDetails.email
@@ -60,6 +63,9 @@ export default function Page() {
     } 
     catch (error) {
       console.log("INSIDE THE CATCH: Error while sending the OTP to user");
+    }
+    finally {
+      setIsLoading(false);
     }
   }
 
@@ -88,6 +94,7 @@ export default function Page() {
       className="min-h-screen w-full bg-black flex justify-center items-center overflow-x-hidden"
       ref={parentRef}
     >
+      {isLoading && <LoadingSpinner />} 
       <FlickeringGrid
         className="z-0 absolute inset-0 size-full overflow-x-hidden"
         squareSize={4}
@@ -171,9 +178,10 @@ export default function Page() {
             <CardFooter className="pt-4">
               <Button
                 type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20"
+                disabled={isLoading} // Disable button while loading
+                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign Up
+                {isLoading ? "Signing up..." : "Sign Up"}
               </Button>
             </CardFooter>
           </form>

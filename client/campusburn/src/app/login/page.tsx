@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import LoadingSpinner from "../Loading";
 
 interface UserLoginDetails {
   email: string;
@@ -30,7 +31,8 @@ export default function Page() {
     email: "",
     password: ""
   });
-  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const {toast} = useToast();
   const router = useRouter();
   const parentRef = useRef<HTMLDivElement | null>(null);
@@ -45,6 +47,7 @@ export default function Page() {
         return;
     }
 
+    setIsLoading(true);
     try {
         const loginResponse = await axios.post("http://localhost:4200/auth/sign-in", {
             Email: userDetails.email,
@@ -53,13 +56,29 @@ export default function Page() {
 
         if( loginResponse.status === 404 ){
             console.log("User not found in the database");
+            toast({
+                title: "User not found",
+                variant: "destructive"
+            });
         }
         else if( loginResponse.status === 202 ){
             console.log("Response after login: ", loginResponse);
+            toast({
+                title: "Login successful",
+                variant: "default"
+            });
         }
     } 
     catch (error) {
         console.log("INSIDE THE CATCH PART: Error while logging the user");
+        toast({
+            title: "Login failed",
+            description: "Please check your credentials and try again",
+            variant: "destructive"
+        });
+    }
+    finally {
+        setIsLoading(false);
     }
   }
 
@@ -88,6 +107,7 @@ export default function Page() {
       className="min-h-screen w-full bg-black flex justify-center items-center overflow-x-hidden"
       ref={parentRef}
     >
+      {isLoading && <LoadingSpinner />}
       <FlickeringGrid
         className="z-0 absolute inset-0 size-full overflow-x-hidden"
         squareSize={4}
@@ -156,9 +176,10 @@ export default function Page() {
             <CardFooter className="pt-4">
               <Button
                 type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20"
+                disabled={isLoading}
+                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Login
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
             </CardFooter>
           </form>
