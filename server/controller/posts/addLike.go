@@ -43,7 +43,7 @@ func AddLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":    "Like added successfully",
 		"Like count": thisPost.LikeCount,
 	})

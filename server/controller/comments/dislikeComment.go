@@ -50,7 +50,7 @@ func DislikeComment(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":             "Dislike added to the comment successfully",
 		"Disliked comment ID": comment.ID,
 	})

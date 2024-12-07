@@ -61,7 +61,7 @@ export default function Page() {
                 variant: "destructive"
             });
         }
-        else if( loginResponse.status === 202 ){
+        else if( loginResponse.status === 200 ){
             console.log("Response after login: ", loginResponse);
             toast({
                 title: "Login successful",

@@ -75,7 +75,7 @@ func CreatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message": "Post Created",
 		"Post":    post.Content,
 		"Creator": user.Email,

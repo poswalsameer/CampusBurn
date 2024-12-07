@@ -86,7 +86,7 @@ func RegisterUser(c *fiber.Ctx) error {
 	fmt.Println("Number of rows affected: ", createdUser.RowsAffected)
 
 	// IF USER CREATED, THEN SENDING SUCCESS RESPONSE
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"id":        user.ID,
 		"username":  user.Username,
 		"email":     user.Email,

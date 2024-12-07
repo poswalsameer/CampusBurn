@@ -77,7 +77,7 @@ func UpdatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":      "Post updated successfully",
 		"Updated by":   userInDB.Email,
 		"Updated post": postInDB.Content,

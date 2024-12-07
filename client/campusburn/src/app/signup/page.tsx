@@ -51,7 +51,7 @@ export default function Page() {
         Email: userDetails.email
       })
 
-      if(emailVerificationResponse.status === 202 ){
+      if(emailVerificationResponse.status === 200 ){
         router.push("/verifyEmail");
       }
       else{
