@@ -52,7 +52,7 @@ func RemoveLikeComment(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":    "Unliked to the comment successfully",
 		"comment ID": comment.ID,
 	})

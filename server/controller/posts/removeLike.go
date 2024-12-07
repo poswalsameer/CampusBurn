@@ -33,7 +33,7 @@ func RemoveLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":    "Like removed successfully",
 		"Like count": thisPost.LikeCount,
 	})

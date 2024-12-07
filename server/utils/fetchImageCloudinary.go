@@ -66,7 +66,7 @@ func FetchImageFromCloudinary(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":          "Image fetched succesfully",
 		"User":             currentUser.Email,
 		"Image secure_url": resp.SecureURL,

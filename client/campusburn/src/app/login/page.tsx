@@ -54,7 +54,7 @@ export default function Page() {
         if( loginResponse.status === 404 ){
             console.log("User not found in the database");
         }
-        else if( loginResponse.status === 202 ){
+        else if( loginResponse.status === 200 ){
             console.log("Response after login: ", loginResponse);
         }
     } 
@@ -156,7 +156,7 @@ export default function Page() {
             <CardFooter className="pt-4">
               <Button
                 type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20"
+                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20"
               >
                 Login
               </Button>

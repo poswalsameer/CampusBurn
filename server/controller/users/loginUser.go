@@ -93,7 +93,7 @@ func LoginUser(c *fiber.Ctx) error {
 		Secure:   true,
 	})
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":   "Login successful",
 		"email":     existingUser.Email,
 		"authToken": existingUser.AuthToken,

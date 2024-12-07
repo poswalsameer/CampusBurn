@@ -92,7 +92,7 @@ func UploadImageToCloudinary(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":           "Image uploaded to cloudinary successfully",
 		"Image uploaded by": currentUser.Email,
 		"Name of the image": imageName,

@@ -33,7 +33,7 @@ func RemoveDislike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":       "Dislike removed successfully",
 		"Dislike count": thisPost.DislikeCount,
 	})
