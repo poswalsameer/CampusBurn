@@ -48,7 +48,7 @@ export default function Page() {
         Email: userDetails.email
       })
 
-      if(emailVerificationResponse.status === 202 ){
+      if(emailVerificationResponse.status === 200 ){
         router.push("/verifyEmail");
       }
       else{
@@ -171,7 +171,7 @@ export default function Page() {
             <CardFooter className="pt-4">
               <Button
                 type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20"
+                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg"
               >
                 Sign Up
               </Button>

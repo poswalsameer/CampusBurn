@@ -82,7 +82,7 @@ func SendEmail(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message": "Email sent successfully",
 		"Data":    sent,
 	})

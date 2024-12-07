@@ -65,7 +65,7 @@ func DeleteComment(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":            "Comment deleted successfully",
 		"Deleted comment ID": currentComment.ID,
 		"Comment deleted by": currentUser.ID,

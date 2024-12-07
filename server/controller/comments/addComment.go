@@ -75,7 +75,7 @@ func AddComment(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message": "Comment added successfully",
 		"Comment": comment.CommentContent,
 		"Post":    post.ID,
