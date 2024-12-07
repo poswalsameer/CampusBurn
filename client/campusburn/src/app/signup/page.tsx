@@ -20,7 +20,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { updateUserDetail } from "@/reducers/userSlice";
-import LoadingSpinner from "../Loading";
+import LoadingSpinner from "../appComponents/Loading";
 
 export default function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });

@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import LoadingSpinner from "../Loading";
+import LoadingSpinner from "../appComponents/Loading";
 
 interface UserLoginDetails {
   email: string;
