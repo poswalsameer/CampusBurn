@@ -178,7 +178,7 @@ export default function Page() {
             <CardFooter className="pt-4">
               <Button
                 type="submit"
-                disabled={isLoading} // Disable button while loading
+                disabled={isLoading}
                 className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Signing up..." : "Sign Up"}
