@@ -179,7 +179,7 @@ export default function Page() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20"
+                className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg"
               >
                 {isLoading ? "Signing up..." : "Sign Up"}
               </Button>
