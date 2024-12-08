@@ -72,6 +72,28 @@ func RegisterUser(c *fiber.Ctx) error {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
+	// CREATE JWT TOKEN FOR THE USER
+	token, err := middleware.GenerateJWT(user.Email)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Error": err,
+		})
+	}
+
+	// SETTING THE TOKEN IN DATABASE
+	user.AuthToken = token
+
+	// SETTING THE TOKEN IN COOKIES
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
+		SameSite: "Strict",
+		Secure:   true,
+	})
+
 	// SAVING THE USER INTO THE DATABASE
 	createdUser := dbConnection.DB.Create(&user)
 

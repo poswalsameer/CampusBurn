@@ -63,10 +63,7 @@ export default function Page() {
         }
         else if( loginResponse.status === 200 ){
             console.log("Response after login: ", loginResponse);
-            toast({
-                title: "Login successful",
-                variant: "default"
-            });
+            router.push("/feed")
         }
     } 
     catch (error) {

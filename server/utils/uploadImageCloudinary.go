@@ -1,11 +1,10 @@
 package utils
 
 import (
-	"campusburn-backend/dbConnection"
-	"campusburn-backend/model"
 	"context"
 	"os"
-	"strconv"
+	"path/filepath"
+	"strings"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -22,6 +21,10 @@ FLOW TO UPLOAD IN IMAGE TO CLOUDINARY:
 4. Upload the image provided by the user with this name - profile-{ID}-photo
 
 */
+
+// type ProfilePhoto struct {
+// 	ProfilePhoto string `json:"profilePhoto"`
+// }
 
 func UploadImageToCloudinary(c *fiber.Ctx) error {
 
@@ -40,28 +43,28 @@ func UploadImageToCloudinary(c *fiber.Ctx) error {
 	//INITIALISING CLOUDINARY HERE WITH THE ENV VARIABLES
 	cld, _ := cloudinary.NewFromParams(cloudName, apiKey, apiSecret)
 
-	var user model.User
-	if parsingError := c.BodyParser(&user); parsingError != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"Message": "Invalid body request",
-		})
-	}
+	// var profilePhoto ProfilePhoto
+	// if parsingError := c.BodyParser(&profilePhoto); parsingError != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"Message": "Invalid body request",
+	// 	})
+	// }
 
-	userId, ok := c.Locals("userId").(string)
+	// userId, ok := c.Locals("userId").(string)
 
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Message": "Need to login first before image upload",
-		})
-	}
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"Message": "Need to login first before image upload",
+	// 	})
+	// }
 
-	var currentUser model.User
-	userSearchError := dbConnection.DB.Where("Email = ?", userId).First(&currentUser).Error
-	if userSearchError != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"Message": "User not found with this mail ID",
-		})
-	}
+	// var currentUser model.User
+	// userSearchError := dbConnection.DB.Where("Email = ?", userId).First(&currentUser).Error
+	// if userSearchError != nil {
+	// 	return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+	// 		"Message": "User not found with this mail ID",
+	// 	})
+	// }
 
 	// GETTING THE FILE FROM THE FORM FIELD "image"
 	file, err := c.FormFile("image")
@@ -81,7 +84,7 @@ func UploadImageToCloudinary(c *fiber.Ctx) error {
 	}
 	defer fileHandler.Close()
 
-	imageName := "ProfilePhoto-" + strconv.FormatUint(uint64(currentUser.ID), 10)
+	imageName := strings.TrimSuffix(file.Filename, filepath.Ext(file.Filename))
 
 	var ctx = context.Background()
 	resp, err := cld.Upload.Upload(ctx, fileHandler, uploader.UploadParams{PublicID: imageName})
@@ -93,8 +96,8 @@ func UploadImageToCloudinary(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Message":           "Image uploaded to cloudinary successfully",
-		"Image uploaded by": currentUser.Email,
+		"Message": "Image uploaded to cloudinary successfully",
+		// "Image uploaded by": currentUser.Email,
 		"Name of the image": imageName,
 		"Response":          resp,
 	})
