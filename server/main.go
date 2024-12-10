@@ -58,6 +58,7 @@ func main() {
 	app.Post("/dislikePost", posts.AddDislike)
 	app.Delete("/deletePostLike", posts.RemoveLike)
 	app.Delete("/deletePostDislike", posts.RemoveDislike)
+	app.Get("/getAllPosts", posts.GetAllPosts)
 
 	// CONTROLLERS RELATED TO COMMENTS
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)
