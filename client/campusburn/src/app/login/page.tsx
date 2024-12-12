@@ -52,7 +52,7 @@ export default function Page() {
         const loginResponse = await axios.post("http://localhost:4200/auth/sign-in", {
             Email: userDetails.email,
             Password: userDetails.password
-        })
+        }, {withCredentials: true})
 
         if( loginResponse.status === 404 ){
             console.log("User not found in the database");
@@ -63,6 +63,7 @@ export default function Page() {
         }
         else if( loginResponse.status === 200 ){
             console.log("Response after login: ", loginResponse);
+
             router.push("/feed")
         }
     } 

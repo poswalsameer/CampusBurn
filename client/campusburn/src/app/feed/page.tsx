@@ -1,7 +1,29 @@
+'use client'
+
 import Image from 'next/image'
 import { UserCircle, LogOut, PenSquare, ThumbsUp, ThumbsDown, MessageCircle, HomeIcon, User } from 'lucide-react'
+import axios from 'axios'
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+
+  const router = useRouter();
+  const logoutUser = async () => {
+
+    try {
+      const logoutResponse = await axios.post("http://localhost:4200/auth/sign-out", {}, {withCredentials: true});
+      console.log("This is the response after logout: ", logoutResponse);
+
+      if(logoutResponse.status === 200){
+        router.push("/");
+      }
+    } 
+    catch (error) {
+      console.log("Error while logging out the user: ", error);
+    }
+
+  }
+
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
       {/* Left column - User Profile (20%) */}
@@ -29,7 +51,9 @@ export default function Home() {
       <PenSquare className="inline-block mr-2" />
       Create Post
     </button>
-    <button className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+    <button className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+    onClick={logoutUser}
+    >
       <LogOut className="inline-block mr-2" />
       Logout
     </button>

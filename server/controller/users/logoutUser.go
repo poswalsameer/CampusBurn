@@ -20,13 +20,13 @@ FLOW TO LOGOUT THE USER FROM THE APPLICATION:
 func LogoutUser(c *fiber.Ctx) error {
 
 	// CHECKING THE AUTH STATUS FROM THE MIDDLEWARE
-	userId, ok := c.Locals("userId").(string)
+	// userId, ok := c.Locals("userId").(string)
 
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Error": "Unauthorized user",
-		})
-	}
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"Error": "Unauthorized user",
+	// 	})
+	// }
 
 	token := c.Cookies("token")
 
@@ -37,14 +37,15 @@ func LogoutUser(c *fiber.Ctx) error {
 		Expires:  time.Unix(0, 0),
 		Path:     "/",
 		HTTPOnly: true,
-		Secure:   true,
+		SameSite: "None",
+		Secure:   false,
 	})
 
 	var existingUser model.User
-	userReturnedError := dbConnection.DB.Where("Email = ?", userId).First(&existingUser).Error
+	userReturnedError := dbConnection.DB.Where("auth_token = ?", token).First(&existingUser).Error
 	if userReturnedError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"Error": userReturnedError.Error(),
+			"Error": "User not found",
 		})
 	}
 
