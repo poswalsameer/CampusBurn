@@ -41,7 +41,7 @@ func main() {
 	// AUTH RELATED CONTROLLERS
 	app.Post("/auth/sign-up", users.RegisterUser)
 	app.Post("/auth/sign-in", users.LoginUser)
-	app.Get("/auth/sign-out", middleware.AuthRequired, users.LogoutUser)
+	app.Post("/auth/sign-out", users.LogoutUser)
 	app.Delete("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
 	app.Post("/sendEmail", users.SendEmail)
 	app.Post("/verifyEmail", users.VerifyEmail)

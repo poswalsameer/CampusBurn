@@ -4,6 +4,7 @@ import (
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
 	"campusburn-backend/model"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -67,12 +68,14 @@ func LoginUser(c *fiber.Ctx) error {
 
 	// CREATE JWT TOKEN FOR THE USER
 	token, err := middleware.GenerateJWT(user.Email)
+	println("JWT_SECRET Length: %d", len(os.Getenv("JWT_SECRET")))
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Error": err,
 		})
 	}
+	println("generated token: ", token)
 
 	// SETTING THE TOKEN IN DATABASE
 	existingUser.AuthToken = token
@@ -89,8 +92,8 @@ func LoginUser(c *fiber.Ctx) error {
 		Value:    token,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HTTPOnly: true,
-		SameSite: "Strict",
-		Secure:   true,
+		SameSite: "None",
+		Secure:   false,
 	})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
