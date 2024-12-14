@@ -35,6 +35,8 @@ function Page() {
     if( !otp ){
       toast({
         title: "OTP is required",
+        variant: "destructive",
+        className: "bg-red-600 text-white"
       })
       return;
     }
@@ -60,6 +62,8 @@ function Page() {
       else{
         toast({
           title: "Error during email verification",
+          variant: "destructive",
+          className: "bg-red-600 text-white"
         })
         return;
       }
@@ -87,6 +91,8 @@ function Page() {
     else{
       toast({
         title: "Error while registering the user",
+        variant: "destructive",
+        className: "bg-red-600 text-white"
       })
       return;
     }

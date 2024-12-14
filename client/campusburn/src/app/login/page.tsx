@@ -43,6 +43,8 @@ export default function Page() {
     if( !userDetails.email || !userDetails.password ){
         toast({
             title: "Every field is required",
+            variant: "destructive",
+            className: "bg-red-600 text-white"
         })
         return;
     }
@@ -58,14 +60,16 @@ export default function Page() {
             console.log("User not found in the database");
             toast({
                 title: "User not found",
-                variant: "destructive"
+                variant: "destructive",
+                className: "bg-red-600 text-white"
             });
         }
         else if( loginResponse.status === 200 ){
             console.log("Response after login: ", loginResponse);
             toast({
                 title: "Login successful",
-                variant: "default"
+                variant: "default",
+                className: "bg-green-600 text-white"
             });
         }
     } 
@@ -74,7 +78,8 @@ export default function Page() {
         toast({
             title: "Login failed",
             description: "Please check your credentials and try again",
-            variant: "destructive"
+            variant: "destructive",
+            className: "bg-red-600 text-white"
         });
     }
     finally {

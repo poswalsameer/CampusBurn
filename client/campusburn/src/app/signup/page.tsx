@@ -39,6 +39,8 @@ export default function Page() {
     if( !userDetails.email || !userDetails.password || !userDetails.username ){
         toast({
             title: "Every field is required",
+            variant: "destructive",
+            className: "bg-red-600 text-white"
         })
         return;
     }
@@ -57,6 +59,8 @@ export default function Page() {
       else{
         toast({
           title: "Error while sending the email",
+          variant: "destructive",
+          className: "bg-red-600 text-white"
         })
         return;
       }
