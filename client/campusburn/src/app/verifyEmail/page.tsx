@@ -17,8 +17,9 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "../Loading";
+import LoadingSpinner from "../appComponents/Loading";
 import { Label } from "@/components/ui/label";
+import Cookie from 'js-cookie';
 
 function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -56,7 +57,8 @@ function Page() {
       })
 
       if( otpVerificationResponse.status === 200 ){
-        //SIGNUP THE USER AFTER EMAIL IS VERIFIED
+
+        // SIGNUP THE USER AFTER EMAIL IS VERIFIED
         await registerUser(userDetails.email, userDetails.username, userDetails.password);
       }
       else{
@@ -85,7 +87,10 @@ function Page() {
       Password: password,
     })
 
-    if( registerUserResponse.status === 201 ){
+    if( registerUserResponse.status === 200 ){
+
+      console.log("response after register user: ", registerUserResponse);
+
       router.push("/feed");
     }
     else{
@@ -120,7 +125,6 @@ function Page() {
       className="min-h-screen w-full bg-black flex justify-center items-center overflow-x-hidden"
       ref={parentRef}
     >
-      {isLoading && <LoadingSpinner />} // Added loader component
       <FlickeringGrid
         className="z-0 absolute inset-0 size-full overflow-x-hidden"
         squareSize={4}
@@ -131,43 +135,39 @@ function Page() {
         height={dimensions.height}
         width={dimensions.width}
       />
-
-      <div className="min-h-screen flex items-center justify-center">
+      <div className=" min-h-screen flex items-center justify-center ">
+      {/* z-10 w-[30rem] rounded-lg border-2 border-blue-400/20 bg-blue-950/30 backdrop-blur-sm */}
         <Card className="z-10 w-[30rem] rounded-lg border-2 border-blue-400/20 bg-blue-950/30 backdrop-blur-sm">
           <CardHeader className="space-y-2">
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
               Verify Email
             </CardTitle>
-            <CardDescription className="text-md text-blue-200/70">
+            <CardDescription className="text-md text-blue-200/70 ">
               Enter the OTP sent to your email
             </CardDescription>
           </CardHeader>
-          <form onSubmit={handleVerifyOTP}>
-            <CardContent className="space-y-4">
+          <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="otp" className="text-lg font-semibold text-blue-200">
                   OTP
                 </Label>
-                <Input
-                  id="otp"
-                  type="number"
-                  placeholder="Enter the OTP"
-                  value={otp}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOTP(e.target.value)}
-                  className="bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
-                />
+                <Input 
+                type="number"
+                value={otp}
+                onChange={(e: any) => setOTP(e.target.value)}
+                className="bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20" >
+                </Input>
               </div>
-            </CardContent>
-            <CardFooter className="pt-4">
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 hover:from-orange-500 hover:via-orange-600 hover:to-orange-500 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? "Verifying..." : "Verify"}
-              </Button>
-            </CardFooter>
-          </form>
+          </CardContent>
+          <CardFooter className="pt-4">
+            <Button
+              type="submit"
+              onClick={handleVerifyOTP}
+              className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-6 transition-all duration-300 shadow-lg"
+            >
+              Verify
+            </Button>
+          </CardFooter>
         </Card>
       </div>
     </div>

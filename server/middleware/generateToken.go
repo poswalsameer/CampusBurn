@@ -31,6 +31,8 @@ func GenerateJWT(userId string) (string, error) {
 	claims := &jwt.RegisteredClaims{
 		Subject:   userId,
 		ExpiresAt: jwt.NewNumericDate(tokenExpiry),
+		Issuer:    "campusburndb",
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 
 	// CREATING THE TOKEN

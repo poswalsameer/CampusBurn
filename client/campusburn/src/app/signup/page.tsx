@@ -12,26 +12,28 @@ import {
 import FlickeringGrid from "@/components/ui/flickering-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { EyeOff, Eye } from "lucide-react";
+import { EyeOff, Eye, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { updateUserDetail } from "@/reducers/userSlice";
-import LoadingSpinner from "../Loading";
+import LoadingSpinner from "../appComponents/Loading";
+import { cn } from "@/lib/utils";
 
 export default function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const userDetails = useSelector((state: RootState) => state.userDetails);
   const dispatch = useDispatch();
 
-  const [showPassword, setShowPassword] = useState<boolean>(false)
-  const {toast} = useToast();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const { toast } = useToast();
   const router = useRouter();
   const parentRef = useRef<HTMLDivElement | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [imageName, setImageName] = useState<string>("Select a profile photo")
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -47,16 +49,18 @@ export default function Page() {
 
     console.log("Details entered by the user are: ", userDetails);
 
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
-      const emailVerificationResponse = await axios.post("http://localhost:4200/sendEmail", {
-        Email: userDetails.email
-      })
+      const emailVerificationResponse = await axios.post(
+        "http://localhost:4200/sendEmail",
+        {
+          Email: userDetails.email,
+        }
+      );
 
-      if(emailVerificationResponse.status === 200 ){
+      if (emailVerificationResponse.status === 200) {
         router.push("/verifyEmail");
-      }
-      else{
+      } else {
         toast({
           title: "Error while sending the email",
           variant: "destructive",
@@ -64,18 +68,16 @@ export default function Page() {
         })
         return;
       }
-    } 
-    catch (error) {
+    } catch (error) {
       console.log("INSIDE THE CATCH: Error while sending the OTP to user");
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -98,7 +100,7 @@ export default function Page() {
       className="min-h-screen w-full bg-black flex justify-center items-center overflow-x-hidden"
       ref={parentRef}
     >
-      {isLoading && <LoadingSpinner />} 
+      {isLoading && <LoadingSpinner />}
       <FlickeringGrid
         className="z-0 absolute inset-0 size-full overflow-x-hidden"
         squareSize={4}
@@ -122,7 +124,10 @@ export default function Page() {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-lg font-semibold text-blue-200">
+                <Label
+                  htmlFor="email"
+                  className="text-lg font-semibold text-blue-200"
+                >
                   Email
                 </Label>
                 <Input
@@ -131,13 +136,16 @@ export default function Page() {
                   placeholder="Enter your email"
                   value={userDetails.email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    dispatch(updateUserDetail({email: e.target.value}))
+                    dispatch(updateUserDetail({ email: e.target.value }))
                   }
-                  className="bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
+                  className="h-10 bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-lg font-semibold text-blue-200">
+                <Label
+                  htmlFor="username"
+                  className="text-lg font-semibold text-blue-200"
+                >
                   Username
                 </Label>
                 <Input
@@ -146,13 +154,16 @@ export default function Page() {
                   placeholder="Choose a username"
                   value={userDetails.username}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    dispatch(updateUserDetail({username: e.target.value}))
+                    dispatch(updateUserDetail({ username: e.target.value }))
                   }
-                  className="bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
+                  className="h-10 bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-lg font-semibold text-blue-200">
+                <Label
+                  htmlFor="password"
+                  className="text-lg font-semibold text-blue-200"
+                >
                   Password
                 </Label>
                 <div className="relative">
@@ -161,14 +172,18 @@ export default function Page() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a strong password"
                     value={userDetails.password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => dispatch(updateUserDetail({password: e.target.value}))}
-                    className="bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      dispatch(updateUserDetail({ password: e.target.value }))
+                    }
+                    className="h-10 bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-blue-400/70 hover:text-orange-400 transition-colors focus:outline-none"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -178,6 +193,7 @@ export default function Page() {
                   </button>
                 </div>
               </div>
+              
             </CardContent>
             <CardFooter className="pt-4">
               <Button

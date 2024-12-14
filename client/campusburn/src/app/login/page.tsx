@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import LoadingSpinner from "../Loading";
+import LoadingSpinner from "../appComponents/Loading";
 
 interface UserLoginDetails {
   email: string;
@@ -54,7 +54,7 @@ export default function Page() {
         const loginResponse = await axios.post("http://localhost:4200/auth/sign-in", {
             Email: userDetails.email,
             Password: userDetails.password
-        })
+        }, {withCredentials: true})
 
         if( loginResponse.status === 404 ){
             console.log("User not found in the database");
@@ -71,6 +71,7 @@ export default function Page() {
                 variant: "default",
                 className: "bg-green-600 text-white"
             });
+            router.push("/feed")
         }
     } 
     catch (error) {
