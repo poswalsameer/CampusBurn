@@ -12,7 +12,6 @@ import {
 import FlickeringGrid from "@/components/ui/flickering-grid";
 import React, { useRef, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -20,6 +19,7 @@ import { useRouter } from "next/navigation";
 import LoadingSpinner from "../appComponents/Loading";
 import { Label } from "@/components/ui/label";
 import Cookie from 'js-cookie';
+import ToastNew from "@/components/newToast";
 
 function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -29,16 +29,17 @@ function Page() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false); 
+  const [toastMessage, setToastMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if( !otp ){
-      toast({
-        title: "OTP is required",
-        variant: "destructive",
-        className: "bg-red-600 text-white"
-      })
+      setToastMessage({
+        message: "OTP is required",
+        type: 'error',
+      });
       return;
     }
 
@@ -62,11 +63,10 @@ function Page() {
         await registerUser(userDetails.email, userDetails.username, userDetails.password);
       }
       else{
-        toast({
-          title: "Error during email verification",
-          variant: "destructive",
-          className: "bg-red-600 text-white"
-        })
+        setToastMessage({
+          message: "Error during email verification",
+          type: 'error',
+        });
         return;
       }
 
@@ -94,11 +94,10 @@ function Page() {
       router.push("/feed");
     }
     else{
-      toast({
-        title: "Error while registering the user",
-        variant: "destructive",
-        className: "bg-red-600 text-white"
-      })
+      setToastMessage({
+        message: "Error while registering the use",
+        type: 'error',
+      });
       return;
     }
 
@@ -170,6 +169,11 @@ function Page() {
           </CardFooter>
         </Card>
       </div>
+      {toastMessage && <ToastNew
+        title={toastMessage.type === "success" ? "Success" : "Error"}
+        message={toastMessage.message}
+        type={toastMessage.type}
+      />}
     </div>
   );
 }

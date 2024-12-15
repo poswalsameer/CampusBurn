@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EyeOff, Eye, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,6 +21,7 @@ import { RootState } from "@/redux/store";
 import { updateUserDetail } from "@/reducers/userSlice";
 import LoadingSpinner from "../appComponents/Loading";
 import { cn } from "@/lib/utils";
+import ToastNew from "@/components/newToast";
 
 export default function Page() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -29,21 +29,17 @@ export default function Page() {
   const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const { toast } = useToast();
   const router = useRouter();
   const parentRef = useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageName, setImageName] = useState<string>("Select a profile photo")
+  const [toastMessage, setToastMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if( !userDetails.email || !userDetails.password || !userDetails.username ){
-        toast({
-            title: "Every field is required",
-            variant: "destructive",
-            className: "bg-red-600 text-white"
-        })
+        setToastMessage({message:"Every field is required", type: 'error'})
         return;
     }
 
@@ -59,17 +55,14 @@ export default function Page() {
       );
 
       if (emailVerificationResponse.status === 200) {
+        setToastMessage({ message: "Email sent successfully!", type: "success" });
         router.push("/verifyEmail");
       } else {
-        toast({
-          title: "Error while sending the email",
-          variant: "destructive",
-          className: "bg-red-600 text-white"
-        })
+        setToastMessage({ message: "Error while sending the email", type: "error" });
         return;
       }
     } catch (error) {
-      console.log("INSIDE THE CATCH: Error while sending the OTP to user");
+      setToastMessage({ message: "Error while sending the OTP to user", type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -207,6 +200,11 @@ export default function Page() {
           </form>
         </Card>
       </div>
+      {toastMessage && <ToastNew
+        title={toastMessage.type === "success" ? "Success" : "Error"}
+        message={toastMessage.message}
+        type={toastMessage.type}
+      />}
     </div>
   );
 }
