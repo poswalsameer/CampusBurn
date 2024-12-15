@@ -90,6 +90,11 @@ export default function Page() {
 
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
+  
+  const handleCloseToast = () => {
+    setToastMessage(null); // Remove the toast
+  };
+
 
   return (
     <div
@@ -178,6 +183,8 @@ export default function Page() {
         title={toastMessage.type === "success" ? "Success" : "Error"}
         message={toastMessage.message}
         type={toastMessage.type}
+        onClose={handleCloseToast}
+
       />}
     </div>
   );

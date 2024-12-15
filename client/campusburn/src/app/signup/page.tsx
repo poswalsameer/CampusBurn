@@ -40,6 +40,7 @@ export default function Page() {
 
     if( !userDetails.email || !userDetails.password || !userDetails.username ){
         setToastMessage({message:"Every field is required", type: 'error'})
+        setTimeout(() => setToastMessage(null), 3000); // Reset toast after 3 seconds
         return;
     }
 
@@ -56,13 +57,16 @@ export default function Page() {
 
       if (emailVerificationResponse.status === 200) {
         setToastMessage({ message: "Email sent successfully!", type: "success" });
+        setTimeout(() => setToastMessage(null), 3000); // Reset toast after 3 seconds
         router.push("/verifyEmail");
       } else {
         setToastMessage({ message: "Error while sending the email", type: "error" });
+        setTimeout(() => setToastMessage(null), 3000); // Reset toast after 3 seconds
         return;
       }
     } catch (error) {
       setToastMessage({ message: "Error while sending the OTP to user", type: "error" });
+      setTimeout(() => setToastMessage(null), 3000); // Reset toast after 3 seconds
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +91,10 @@ export default function Page() {
 
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
+
+  const handleCloseToast = () => {
+    setToastMessage(null); // Remove the toast
+  };
 
   return (
     <div
@@ -204,6 +212,7 @@ export default function Page() {
         title={toastMessage.type === "success" ? "Success" : "Error"}
         message={toastMessage.message}
         type={toastMessage.type}
+        onClose={handleCloseToast}
       />}
     </div>
   );
