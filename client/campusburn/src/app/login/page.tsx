@@ -15,10 +15,10 @@ import { Label } from "@/components/ui/label";
 import { SignUp } from "@clerk/nextjs";
 import { EyeOff, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import LoadingSpinner from "../appComponents/Loading";
+import ToastNew from "@/components/newToast";
 
 interface UserLoginDetails {
   email: string;
@@ -33,56 +33,47 @@ export default function Page() {
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const {toast} = useToast();
   const router = useRouter();
   const parentRef = useRef<HTMLDivElement | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if( !userDetails.email || !userDetails.password ){
-        toast({
-            title: "Every field is required",
-        })
-        return;
+    if (!userDetails.email || !userDetails.password) {
+      setToastMessage({
+        message: "Every field is required",
+        type: 'error',
+      });
+      return;
     }
+    setTimeout(() => {
+
+    })
 
     setIsLoading(true);
     try {
-        const loginResponse = await axios.post("http://localhost:4200/auth/sign-in", {
-            Email: userDetails.email,
-            Password: userDetails.password
-        }, {withCredentials: true})
+      const loginResponse = await axios.post("http://localhost:4200/auth/sign-in", {
+        Email: userDetails.email,
+        Password: userDetails.password
+      }, { withCredentials: true });
 
-        if( loginResponse.status === 404 ){
-            console.log("User not found in the database");
-            toast({
-                title: "User not found",
-                variant: "destructive"
-            });
-        }
-        else if( loginResponse.status === 200 ){
-            console.log("Response after login: ", loginResponse);
-
-            router.push("/feed")
-        }
-    } 
-    catch (error) {
-        console.log("INSIDE THE CATCH PART: Error while logging the user");
-        toast({
-            title: "Login failed",
-            description: "Please check your credentials and try again",
-            variant: "destructive"
-        });
+      if (loginResponse.status === 404) {
+        setToastMessage({ message: "User not found", type: 'error' });
+      } else if (loginResponse.status === 200) {
+        setToastMessage({ message: "Login successful", type: 'success' });
+        router.push("/feed");
+      }
+    } catch (error) {
+      setToastMessage({ message: "Login failed. Please check your credentials.", type: 'error' });
+    } finally {
+      setIsLoading(false);
     }
-    finally {
-        setIsLoading(false);
-    }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -99,6 +90,11 @@ export default function Page() {
 
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
+  
+  const handleCloseToast = () => {
+    setToastMessage(null); // Remove the toast
+  };
+
 
   return (
     <div
@@ -153,7 +149,7 @@ export default function Page() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={userDetails.password}
-                    onChange={(e: any) => setUserDetails({...userDetails, password: e.target.value})}
+                    onChange={(e: any) => setUserDetails({ ...userDetails, password: e.target.value })}
                     className="bg-blue-950/30 rounded-lg border-2 border-blue-400/20 font-medium text-blue-200 placeholder-blue-400/50 focus:border-orange-400/50 focus:ring-orange-400/20"
                   />
                   <button
@@ -183,6 +179,13 @@ export default function Page() {
           </form>
         </Card>
       </div>
+      {toastMessage && <ToastNew
+        title={toastMessage.type === "success" ? "Success" : "Error"}
+        message={toastMessage.message}
+        type={toastMessage.type}
+        onClose={handleCloseToast}
+
+      />}
     </div>
   );
 }
