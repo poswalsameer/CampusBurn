@@ -38,13 +38,14 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// AUTH RELATED CONTROLLERS
+	// USER/AUTH RELATED CONTROLLERS
 	app.Post("/auth/sign-up", users.RegisterUser)
 	app.Post("/auth/sign-in", users.LoginUser)
 	app.Post("/auth/sign-out", users.LogoutUser)
 	app.Delete("/auth/deleteUser", middleware.AuthRequired, users.DeleteUser)
 	app.Post("/sendEmail", users.SendEmail)
 	app.Post("/verifyEmail", users.VerifyEmail)
+	app.Post("/getCurrentUser", users.GetCurrentUser)
 
 	// THIRD-PARTY SERVICE RELATED CONTROLLERS
 	app.Post("/uploadImage", middleware.AuthRequired, utils.UploadImageToCloudinary)

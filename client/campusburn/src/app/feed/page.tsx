@@ -4,9 +4,29 @@ import Image from 'next/image'
 import { UserCircle, LogOut, PenSquare, ThumbsUp, ThumbsDown, MessageCircle, HomeIcon, User } from 'lucide-react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+
+interface CurrentUser {
+  email: string;
+  username: string;
+  profilePhoto: string;
+  posts: any[]; //TODO: Need to create type for this
+  comments: any[]; //TODO: Need to create type for this
+  createdAt: Date;
+
+}
 
 export default function Home() {
 
+  const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
+    email: "",
+    username: "",
+    profilePhoto: "",
+    posts: [],
+    comments: [],
+    createdAt: new Date(),
+  })
   const router = useRouter();
   const logoutUser = async () => {
 
@@ -24,6 +44,28 @@ export default function Home() {
 
   }
 
+  useEffect( () => {
+
+    const fetchCurrentUserDetail = async () => {
+      try {
+        const currentUserDetailResponse = await axios.post("http://localhost:4200/getCurrentUser", {
+          token: Cookies.get('token') || "",
+        }, {withCredentials: true})
+
+        //todo: Remove this log later
+        console.log("Response: ", currentUserDetailResponse.data.CurrentUser);
+        setCurrentUserDetails(currentUserDetailResponse.data.CurrentUser);
+      } catch (error) {
+        console.log("Error while fetching current user details: ", error);
+      }
+    }
+
+    fetchCurrentUserDetail();
+
+
+  }, [] )
+
+
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
       {/* Left column - User Profile (20%) */}
@@ -32,7 +74,7 @@ export default function Home() {
     <UserCircle className="w-12 h-12" />
     <div>
       {/* <h2 className="font-bold">John Doe</h2> */}
-      <h2 className="text-xl font-bold text-white">@johndoe</h2>
+      <h2 className="text-base font-bold text-white">{currentUserDetails.username}</h2>
     </div>
   </div>
   <div className="space-y-2 mb-6">
