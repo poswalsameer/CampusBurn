@@ -12,7 +12,7 @@ import Head from "next/head";
 // import type { Metadata } from "next";
 
 const poppins = Poppins({
-  weight: "300",
+  weight: "400",
   style: "normal",
   subsets: ["latin"],
 });
