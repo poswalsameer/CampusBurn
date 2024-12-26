@@ -50,6 +50,7 @@ func GetCurrentUser(c *fiber.Ctx) error {
 	if currentUserSearchError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Message": "User not found",
+			"Token":   token,
 		})
 	}
 

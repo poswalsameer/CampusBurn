@@ -4,6 +4,7 @@ import (
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
 	"campusburn-backend/model"
+	"fmt"
 	"os"
 	"time"
 
@@ -79,6 +80,7 @@ func LoginUser(c *fiber.Ctx) error {
 
 	// SETTING THE TOKEN IN DATABASE
 	existingUser.AuthToken = token
+	// After setting cookie
 
 	if err := dbConnection.DB.Save(&existingUser).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -92,9 +94,11 @@ func LoginUser(c *fiber.Ctx) error {
 		Value:    token,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HTTPOnly: true,
-		SameSite: "None",
+		SameSite: fiber.CookieSameSiteLaxMode, // Use Lax for local development
 		Secure:   false,
 	})
+
+	fmt.Printf("Cookie set: %v\n", c.Cookies("token"))
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":   "Login successful",

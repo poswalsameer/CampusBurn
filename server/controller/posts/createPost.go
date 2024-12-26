@@ -3,7 +3,6 @@ package posts
 import (
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/model"
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,15 +23,23 @@ FLOW TO CREATE POST BY THE USER
 
 func CreatePost(c *fiber.Ctx) error {
 
-	userId, ok := c.Locals("userId").(string)
+	// userId, ok := c.Locals("userId").(string)
 
-	if !ok {
-		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Error": "Unauthorized user, cannot create a post",
+	// if !ok {
+	// 	c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"Error": "Unauthorized user, cannot create a post",
+	// 	})
+	// }
+
+	// fmt.Println("The user trying to create this post is: ", userId)
+
+	token := c.Cookies("token")
+
+	if token == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"Message": "Unauthorized user, log in",
 		})
 	}
-
-	fmt.Println("The user trying to create this post is: ", userId)
 
 	var post model.Post
 
@@ -51,7 +58,7 @@ func CreatePost(c *fiber.Ctx) error {
 
 	// FIND THE ID OF THE USER WITH EMAIL AS userId
 	var user model.User
-	userSearchError := dbConnection.DB.Where("Email = ?", userId).First(&user).Error
+	userSearchError := dbConnection.DB.Where("auth_token = ?", token).First(&user).Error
 	if userSearchError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Error": userSearchError.Error(),
