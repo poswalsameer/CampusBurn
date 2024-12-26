@@ -11,12 +11,27 @@ import {
   HomeIcon,
   User,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import PostCard from "../appComponents/PostCard";
 import TopPosts from "../appComponents/TopPosts";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 interface CurrentUser {
   email: string;
@@ -28,6 +43,7 @@ interface CurrentUser {
 }
 
 export default function Home() {
+  const [currentPostData, setCurrentPostData] = useState<string>('');
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     email: "",
     username: "",
@@ -37,6 +53,9 @@ export default function Home() {
     createdAt: new Date(),
   });
   const router = useRouter();
+  const { toast } = useToast();
+
+  //FUNCTION TO LOGOUT THE USER
   const logoutUser = async () => {
     try {
       const logoutResponse = await axios.post(
@@ -62,7 +81,44 @@ export default function Home() {
     }
   };
 
+  //FUNCTION TO CREATE A NEW POST
+  const createPost = async () => {
+
+    if( currentPostData === ''){
+      //TODO:Add toast here
+      alert("Post cannot be empty");
+      return;
+    }
+
+    try {
+      const createPostResponse = await axios.post(
+        "http://localhost:4200/createPost",
+        {"Content": currentPostData},
+        { withCredentials: true }
+      )
+      setCurrentPostData('');
+      //TODO:Need to remove this log later
+      console.log("Post created: ", createPostResponse);
+
+      if( createPostResponse.status === 200 ){
+        toast({
+          title: "Post created successfully",
+        })
+      }
+      else{
+        toast({
+          title: "Cannot create your post at this moment",
+        })
+      }
+    } 
+    catch (error) {
+      console.log("Error while creating a post: ", error);
+    }
+
+  }
+
   useEffect(() => {
+    //FUNCTION TO FETCH THE CURRENT USER DETAILS
     const fetchCurrentUserDetail = async () => {
       try {
         const currentUserDetailResponse = await axios.post(
@@ -81,8 +137,51 @@ export default function Home() {
       }
     };
 
+    //FUNCTION TO FETCH ALL POSTS IN THE DATABASE
+    const fetchAllPostsInDatabase = async () => {
+
+      try {
+        const allPostsResponse = await axios.get(
+          "http://localhost:4200/getAllPosts"
+        );
+
+        if (allPostsResponse.status !== 200) {
+          throw new Error(`Error: Received status code ${allPostsResponse.status}`);
+        }
+
+        console.log("All Posts response: ", allPostsResponse.data);
+      } catch (error) {
+        console.log("Error while fetching posts at this time: ", error);
+      }
+
+    }
+
     fetchCurrentUserDetail();
+    fetchAllPostsInDatabase();
+
   }, []);
+
+  // useEffect( () => {
+  //   const fetchAllPostsInDatabase = async () => {
+
+  //     try {
+  //       const allPostsResponse = await axios.get(
+  //         "http://localhost:4200/getAllPosts"
+  //       );
+
+  //       if (allPostsResponse.status !== 200) {
+  //         throw new Error(`Error: Received status code ${allPostsResponse.status}`);
+  //       }
+
+  //       console.log("All Posts response: ", allPostsResponse.data);
+  //     } catch (error) {
+  //       console.log("Error while fetching posts at this time: ", error);
+  //     }
+
+  //   }
+
+  //   fetchAllPostsInDatabase();
+  // }, [] )
 
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
@@ -112,10 +211,14 @@ export default function Home() {
 
         <div className="flex-grow"></div>
         <div className="w-full flex flex-col justify-center items-center space-y-4 mb-3">
-          <button className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white text-sm font-bold py-2 px-4 rounded-md">
-            {/* <PenSquare className="inline-block mr-2" /> */}
+          {/* <button className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white text-sm font-bold py-2 px-4 rounded-md">
             Post
-          </button>
+          </button> */}
+          <CreatePostButton 
+            currentPostData={currentPostData}
+            setCurrentPostData={setCurrentPostData}
+            createPost={createPost}
+          />
           <button
             className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-sm font-bold py-2 px-4 rounded-md"
             onClick={logoutUser}
@@ -147,4 +250,50 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+
+function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {currentPostData: string, setCurrentPostData: React.Dispatch<React.SetStateAction<string>>, createPost: () => Promise<void>}){
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+          >Show Dialog</Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent className="h-96 flex flex-col justify-center items-center bg-black text-white rounded-xl border-2 border-gray-800">
+        <AlertDialogHeader className="h-[80%] w-full flex flex-col justify-center items-center gap-y-4">
+          <AlertDialogTitle className="h-[20%] font-normal w-full flex justify-center items-center ">
+            Rant your heart out!
+          </AlertDialogTitle>
+          <AlertDialogDescription className="h-[60%] w-full">
+            <Textarea 
+              placeholder="....."
+              value={currentPostData}
+              onChange={(e) => setCurrentPostData(e.target.value)}
+              className="h-full w-full border-none focus-within:outline-none bg-transparent text-gray-100">
+
+            </Textarea>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="h-[20%] w-full flex justify-end items-center gap-x-2 ">
+          <AlertDialogCancel
+            className=" bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-xs font-bold py-2 px-4 rounded-md"
+            //Clearing the state when user clicks cancel
+            onClick={() => setCurrentPostData('')}
+          >
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className=" bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-xs font-semibold py-2 px-6 rounded-md"
+            onClick={createPost}
+          >
+            Post
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
 }
