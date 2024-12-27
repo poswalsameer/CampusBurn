@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import type { Post, UserPost } from '@/types/types';
 
 interface CurrentUser {
   email: string;
@@ -44,6 +45,7 @@ interface CurrentUser {
 
 export default function Home() {
   const [currentPostData, setCurrentPostData] = useState<string>('');
+  const [allPostsData, setAllPostsData] = useState<Post[]>([]);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     email: "",
     username: "",
@@ -149,6 +151,8 @@ export default function Home() {
           throw new Error(`Error: Received status code ${allPostsResponse.status}`);
         }
 
+        setAllPostsData(allPostsResponse.data.data);
+        //TODO:We need to remove this log later
         console.log("All Posts response: ", allPostsResponse.data);
       } catch (error) {
         console.log("Error while fetching posts at this time: ", error);
@@ -162,26 +166,8 @@ export default function Home() {
   }, []);
 
   // useEffect( () => {
-  //   const fetchAllPostsInDatabase = async () => {
-
-  //     try {
-  //       const allPostsResponse = await axios.get(
-  //         "http://localhost:4200/getAllPosts"
-  //       );
-
-  //       if (allPostsResponse.status !== 200) {
-  //         throw new Error(`Error: Received status code ${allPostsResponse.status}`);
-  //       }
-
-  //       console.log("All Posts response: ", allPostsResponse.data);
-  //     } catch (error) {
-  //       console.log("Error while fetching posts at this time: ", error);
-  //     }
-
-  //   }
-
-  //   fetchAllPostsInDatabase();
-  // }, [] )
+  //   console.log("value in the state: ", allPostsData);
+  // }, [allPostsData] )
 
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
@@ -233,8 +219,19 @@ export default function Home() {
       <div className="w-[55%] border-r border-gray-800 max-h-screen flex flex-col">
         <h1 className="text-2xl text-center p-6 font-bold mb-4 flex-shrink-0">Campusburn</h1>
         <div className="space-y-4 overflow-y-scroll flex-grow scrollBarDesign">
-          {[...Array(10)].map((_, i) => (
+          {/* {[...Array(10)].map((_, i) => (
             <PostCard i={i} />
+          ))} */}
+          {allPostsData.map((post) => (
+              <PostCard 
+                key={post.Id} 
+                index={post.Id}
+                username={post.User.Username}
+                content={post.Content}
+                likeCount={post.LikeCount}
+                dislikeCount={post.DislikeCount}
+                comments={post.Comments}
+              />
           ))}
         </div>
       </div>
