@@ -22,6 +22,7 @@ type CurrentToken struct {
 }
 
 type CurrentUserDetails struct {
+	Id           uint            `json:"id"`
 	Email        string          `json:"email"`
 	Username     string          `json:"username"`
 	ProfilePhoto string          `json:"profilePhoto"`
@@ -55,6 +56,7 @@ func GetCurrentUser(c *fiber.Ctx) error {
 	}
 
 	var currentUserDetails CurrentUserDetails
+	currentUserDetails.Id = currentUser.ID
 	currentUserDetails.Email = currentUser.Email
 	currentUserDetails.Username = currentUser.Username
 	currentUserDetails.ProfilePhoto = currentUser.Password

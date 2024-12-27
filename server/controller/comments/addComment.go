@@ -23,11 +23,19 @@ FLOW TO ADD COMMENT TO ANY POST:
 
 func AddComment(c *fiber.Ctx) error {
 
-	userId, ok := c.Locals("userId").(string)
+	// userId, ok := c.Locals("userId").(string)
 
-	if !ok {
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"Error": "Unauthorized user while adding comment",
+	// 	})
+	// }
+
+	token := c.Cookies("token")
+
+	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Error": "Unauthorized user while adding comment",
+			"Message": "Unauthorized user, log in",
 		})
 	}
 
@@ -53,7 +61,7 @@ func AddComment(c *fiber.Ctx) error {
 	}
 
 	var user model.User
-	userSearchError := dbConnection.DB.Where("Email = ?", userId).First(&user).Error
+	userSearchError := dbConnection.DB.Where("auth_token = ?", token).First(&user).Error
 	if userSearchError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Message": "Cannot find the user while adding comment",
