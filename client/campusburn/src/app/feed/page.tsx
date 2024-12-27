@@ -35,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Post, UserPost } from '@/types/types';
 
 interface CurrentUser {
+  id: number | undefined;
   email: string;
   username: string;
   profilePhoto: string;
@@ -47,6 +48,7 @@ export default function Home() {
   const [currentPostData, setCurrentPostData] = useState<string>('');
   const [allPostsData, setAllPostsData] = useState<Post[]>([]);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
+    id: undefined,
     email: "",
     username: "",
     profilePhoto: "",
@@ -69,6 +71,7 @@ export default function Home() {
 
       if (logoutResponse.status === 200) {
         setCurrentUserDetails({
+          id: undefined,
           email: "",
           username: "",
           profilePhoto: "",
@@ -225,12 +228,13 @@ export default function Home() {
           {allPostsData.map((post) => (
               <PostCard 
                 key={post.Id} 
-                index={post.Id}
+                id={post.Id}
                 username={post.User.Username}
                 content={post.Content}
                 likeCount={post.LikeCount}
                 dislikeCount={post.DislikeCount}
                 comments={post.Comments}
+                userId={currentUserDetails.id}
               />
           ))}
         </div>
