@@ -6,6 +6,7 @@ import (
 	"campusburn-backend/controller/users"
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/middleware"
+	"campusburn-backend/model"
 	"campusburn-backend/utils"
 	"log"
 
@@ -16,6 +17,14 @@ import (
 
 func init() {
 	dbConnection.ConnectToDatabase()
+
+	// Add Migration Code
+	err := dbConnection.DB.AutoMigrate(&model.User{}, &model.Post{}, &model.Comment{})
+	if err != nil {
+		log.Fatal("Migration failed: ", err)
+	} else {
+		log.Println("Database migrated successfully!")
+	}
 }
 
 func main() {
@@ -69,6 +78,7 @@ func main() {
 	app.Post("/dislikeComment", middleware.AuthRequired, comments.DislikeComment)
 	app.Delete("/deleteCommentLike", middleware.AuthRequired, comments.RemoveLikeComment)
 	app.Delete("/deleteCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
+	app.Get("/getAllComments/:postId", comments.GetAllCommentForAPost)
 
 	// setting up the server on port 3000
 	app.Listen(":4200")
