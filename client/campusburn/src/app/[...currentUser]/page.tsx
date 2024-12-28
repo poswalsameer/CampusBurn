@@ -1,16 +1,8 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import {
-  UserCircle,
-  LogOut,
-  PenSquare,
-  ThumbsUp,
-  ThumbsDown,
-  MessageCircle,
-  HomeIcon,
-  User,
-} from "lucide-react";
+import { HomeIcon, User, UserCircle } from 'lucide-react'
+import React, { useState } from 'react'
+import PostCard from '../appComponents/PostCard'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,21 +14,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import axios from "axios";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import PostCard from "../appComponents/PostCard";
-import TopPosts from "../appComponents/TopPosts";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import type { Post, UserPost, CurrentUser } from '@/types/types';
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import axios from 'axios'
+import { CurrentUser } from '@/types/types'
+import { usePathname, useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
 
-export default function Home() {
+function CurrentUserProfilePage({params}: {params: any}) {
+
   const [currentPostData, setCurrentPostData] = useState<string>('');
-  const [allPostsData, setAllPostsData] = useState<Post[]>([]);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     id: undefined,
     email: "",
@@ -46,9 +33,13 @@ export default function Home() {
     comments: [],
     createdAt: new Date(),
   });
+
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  
+  console.log("Pathname: ", pathname);
+  
 
   //FUNCTION TO LOGOUT THE USER
   const logoutUser = async () => {
@@ -77,7 +68,7 @@ export default function Home() {
     }
   };
 
-  //FUNCTION TO CREATE A NEW POST
+  // FUNCTION TO CREATE A NEW POST
   const createPost = async () => {
 
     if( currentPostData === ''){
@@ -121,55 +112,7 @@ export default function Home() {
     router.push("/feed");
   }
 
-  useEffect(() => {
-    //FUNCTION TO FETCH THE CURRENT USER DETAILS
-    const fetchCurrentUserDetail = async () => {
-      try {
-        const currentUserDetailResponse = await axios.post(
-          "http://localhost:4200/getCurrentUser",
-          {
-            token: Cookies.get("token") || "",
-          },
-          { withCredentials: true }
-        );
-
-        //TODO:Remove this log later
-        console.log("Response: ", currentUserDetailResponse.data.CurrentUser);
-        setCurrentUserDetails(currentUserDetailResponse.data.CurrentUser);
-      } catch (error) {
-        console.log("Error while fetching current user details: ", error);
-      }
-    };
-
-    //FUNCTION TO FETCH ALL POSTS IN THE DATABASE
-    const fetchAllPostsInDatabase = async () => {
-
-      try {
-        const allPostsResponse = await axios.get(
-          "http://localhost:4200/getAllPosts"
-        );
-
-        if (allPostsResponse.status !== 200) {
-          throw new Error(`Error: Received status code ${allPostsResponse.status}`);
-        }
-
-        setAllPostsData(allPostsResponse.data.data);
-        //TODO:We need to remove this log later
-        console.log("All Posts response: ", allPostsResponse.data);
-      } catch (error) {
-        console.log("Error while fetching posts at this time: ", error);
-      }
-
-    }
-
-    fetchCurrentUserDetail();
-    fetchAllPostsInDatabase();
-
-  }, []);
-
-  // useEffect( () => {
-  //   console.log("value in the state: ", allPostsData);
-  // }, [allPostsData] )
+  
 
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
@@ -181,7 +124,7 @@ export default function Home() {
           <div>
             {/* <h2 className="font-bold">John Doe</h2> */}
             <h2 className="text-base font-bold text-white">
-              {currentUserDetails.username}
+              {params.currentUser}
             </h2>
           </div>
         </div>
@@ -189,14 +132,14 @@ export default function Home() {
         <div className="space-y-2 my-6">
           <button 
             className={`w-full flex items-center space-x-4 transition-all delay-75 ease-linear hover:bg-gray-700/30 ${ pathname === "/feed" ? "bg-gray-700/30" : "" } text-white font-medium py-2 px-4 rounded`}
-            onClick={routeToFeedPage}
+            onClick={routeToFeedPage}  
           >
             <HomeIcon className="w-5 h-5" />
             <span>Home</span>
           </button>
           <button 
             className={`w-full flex items-center space-x-4 transition-all delay-75 ease-linear hover:bg-gray-700/30 text-white ${ pathname !== "/feed" ? "bg-gray-700/30" : "" } font-medium py-2 px-4 rounded`}
-            onClick={routeToProfilePage}
+            onClick={routeToFeedPage}
           >
             <User className="w-5 h-5" />
             <span>Profile</span>
@@ -230,7 +173,7 @@ export default function Home() {
           {/* {[...Array(10)].map((_, i) => (
             <PostCard i={i} />
           ))} */}
-          {allPostsData.map((post) => (
+          {/* {allPostsData.map((post) => (
               <PostCard 
                 key={post.Id} 
                 id={post.Id}
@@ -241,23 +184,24 @@ export default function Home() {
                 comments={post.Comments}
                 userId={currentUserDetails.id}
               />
-          ))}
+          ))} */}
         </div>
       </div>
 
       {/* Right column - Top Posts (25%) */}
       <div className="w-[25%] max-h-screen flex flex-col">
         <h2 className="text-xl text-center p-6 font-bold mb-4 flex-shrink-0">Top 10 Posts</h2>
-        <div className="space-y-2 overflow-y-scroll flex-grow scrollBarDesign">
+        {/* <div className="space-y-2 overflow-y-scroll flex-grow scrollBarDesign">
           {[...Array(10)].map((_, i) => (
             <TopPosts i={i}/>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
-  );
+  )
 }
 
+export default CurrentUserProfilePage
 
 function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {currentPostData: string, setCurrentPostData: React.Dispatch<React.SetStateAction<string>>, createPost: () => Promise<void>}){
   return (
@@ -266,7 +210,9 @@ function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {c
         <Button 
           variant="outline" 
           className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-sm font-bold py-2 px-4 rounded-md"
-          >Show Dialog</Button>
+        >
+          Show Dialog
+        </Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent className="h-96 flex flex-col justify-center items-center bg-black text-white rounded-xl border-2 border-gray-800">

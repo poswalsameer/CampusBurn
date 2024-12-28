@@ -9,6 +9,16 @@ export interface Post {
     User: UserPost;
 }
 
+export interface CurrentUser {
+    id: number | undefined;
+    email: string;
+    username: string;
+    profilePhoto: string;
+    posts: any[]; //TODO:Need to create type for this
+    comments: any[]; //TODO:Need to create type for this
+    createdAt: Date;
+}
+
 export interface UserPost {
     Email: string;
     Id: number;
