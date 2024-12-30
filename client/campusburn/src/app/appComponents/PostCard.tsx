@@ -103,9 +103,9 @@ function PostCard({
       >
         <div className="flex items-center space-x-2 mb-2">
           <UserCircle className="w-8 h-8" />
-          <span className="text-xl font-bold">{username}</span>
+          <span className="text-lg font-bold">{username}</span>
         </div>
-        <p className="text-base mb-4">{content}</p>
+        <p className="text-sm mb-4">{content}</p>
         <div className="flex ml-1 space-x-4">
           <button className="flex items-center space-x-1 text-gray-400 hover:text-blue-500">
             <ThumbsUp className="w-4 h-4" />
@@ -120,7 +120,7 @@ function PostCard({
             onClick={() => setIsCommentsOpen(true)}
           >
             <MessageCircle className="w-4 h-4" />
-            <span>{comments.length}</span>
+            <span>{comments?.length}</span>
           </button>
         </div>
         {isCommentsOpen && (

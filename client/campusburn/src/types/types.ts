@@ -1,4 +1,4 @@
-export interface Post {
+interface Post {
     Comments: any[];
     Content: string;
     CreatedAt: Date;
@@ -9,7 +9,7 @@ export interface Post {
     User: UserPost;
 }
 
-export interface CurrentUser {
+interface CurrentUser {
     id: number | undefined;
     email: string;
     username: string;
@@ -19,9 +19,19 @@ export interface CurrentUser {
     createdAt: Date;
 }
 
-export interface UserPost {
+interface CurrentUserWithoutPostAndComment {
+    id: number | undefined;
+    email: string;
+    username: string;
+    profilePhoto: string;
+    createdAt: Date;
+}
+
+interface UserPost {
     Email: string;
     Id: number;
     ProfilePhoto: string;
     Username: string;
 }
+
+export type { Post, CurrentUser, CurrentUserWithoutPostAndComment, UserPost }

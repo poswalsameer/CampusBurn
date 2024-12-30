@@ -46,6 +46,7 @@ func main() {
 	app.Post("/sendEmail", users.SendEmail)
 	app.Post("/verifyEmail", users.VerifyEmail)
 	app.Post("/getCurrentUser", users.GetCurrentUser)
+	app.Post("/getCurrentUserById", users.GetCurrentUserById)
 
 	// THIRD-PARTY SERVICE RELATED CONTROLLERS
 	app.Post("/uploadImage", middleware.AuthRequired, utils.UploadImageToCloudinary)
@@ -60,6 +61,7 @@ func main() {
 	app.Delete("/deletePostLike", posts.RemoveLike)
 	app.Delete("/deletePostDislike", posts.RemoveDislike)
 	app.Get("/getAllPosts", posts.GetAllPosts)
+	app.Post("/getCurrentUserPosts", posts.GetCurrentUserPosts)
 
 	// CONTROLLERS RELATED TO COMMENTS
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)

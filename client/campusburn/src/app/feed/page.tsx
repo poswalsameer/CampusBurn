@@ -46,6 +46,7 @@ export default function Home() {
     comments: [],
     createdAt: new Date(),
   });
+  
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -70,6 +71,7 @@ export default function Home() {
           comments: [],
           createdAt: new Date(),
         });
+        Cookies.remove("currentUserId");
         router.push("/");
       }
     } catch (error) {
@@ -136,6 +138,7 @@ export default function Home() {
         //TODO:Remove this log later
         console.log("Response: ", currentUserDetailResponse.data.CurrentUser);
         setCurrentUserDetails(currentUserDetailResponse.data.CurrentUser);
+        Cookies.set("currentUserId", currentUserDetailResponse.data.CurrentUser.id);
       } catch (error) {
         console.log("Error while fetching current user details: ", error);
       }
@@ -168,8 +171,8 @@ export default function Home() {
   }, []);
 
   // useEffect( () => {
-  //   console.log("value in the state: ", allPostsData);
-  // }, [allPostsData] )
+  //   console.log("value in the state: ", currentUserDetails);
+  // }, [currentUserDetails] )
 
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
@@ -303,3 +306,8 @@ function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {c
     </AlertDialog>
   )
 }
+
+
+
+
+

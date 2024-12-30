@@ -1,7 +1,7 @@
 'use client'
 
 import { HomeIcon, User, UserCircle } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PostCard from '../appComponents/PostCard'
 import {
   AlertDialog,
@@ -17,13 +17,15 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import axios from 'axios'
-import { CurrentUser } from '@/types/types'
+import type { CurrentUser, Post } from '@/types/types'
 import { usePathname, useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/use-toast'
+import Cookies from 'js-cookie'
 
 function CurrentUserProfilePage({params}: {params: any}) {
 
   const [currentPostData, setCurrentPostData] = useState<string>('');
+  const [currentUserPosts, setCurrentUserPosts] = useState<Post[]>([]);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     id: undefined,
     email: "",
@@ -32,14 +34,13 @@ function CurrentUserProfilePage({params}: {params: any}) {
     posts: [],
     comments: [],
     createdAt: new Date(),
-  });
+  })
 
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
   
   console.log("Pathname: ", pathname);
-  
 
   //FUNCTION TO LOGOUT THE USER
   const logoutUser = async () => {
@@ -61,6 +62,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
           comments: [],
           createdAt: new Date(),
         });
+        Cookies.remove("currentUserId");
         router.push("/");
       }
     } catch (error) {
@@ -104,15 +106,88 @@ function CurrentUserProfilePage({params}: {params: any}) {
 
   }
 
-  const routeToProfilePage = () => {
-    router.push(`/${currentUserDetails.username}`);
-  }
-
   const routeToFeedPage = () => {
     router.push("/feed");
   }
 
-  
+  useEffect(() => {
+    //FETCHING THE DETAILS OF THE CURRENT USER
+    const userId = Cookies.get("currentUserId");
+    if( userId === undefined ){
+      return;
+    }
+    const currentUserId = parseInt(userId);
+
+    console.log("Current user id: ", userId);
+
+    const fetchCurrentUser = async () => {
+
+      try {
+        const currentUserDetailsResponse = await axios.post(
+          "http://localhost:4200/getCurrentUserById",
+          {
+            "userId": currentUserId,
+          },
+          { withCredentials: true },
+        )
+
+        if( currentUserDetailsResponse.status === 200 ){
+          console.log("Details of the current user: ", currentUserDetailsResponse.data.CurrentUser);
+          setCurrentUserDetails(currentUserDetailsResponse.data.CurrentUser);
+          setCurrentUserDetails({...currentUserDetails, id: currentUserId})
+        }
+        else{
+          console.log("Error in the try part");
+        }
+      }
+      catch (error) {
+        console.error("Error while finding the current user");
+      }
+
+    }
+
+    fetchCurrentUser();
+  }, [])
+
+  useEffect( () => {
+
+    const getCurrentUserPosts = async () => {
+
+      if( currentUserDetails.id === undefined ){
+        console.log("Id is undefined");
+        return;
+      }
+
+      try {
+
+        const currentUserPostsResponse = await axios.post(
+          "http://localhost:4200/getCurrentUserPosts",
+          {
+            "userId": currentUserDetails.id
+          },
+          // { withCredentials: true }
+        )
+
+        if( currentUserPostsResponse.status === 200 ){
+          console.log("Response after fetching the user posts: ", currentUserPostsResponse.data.currentUserPosts);
+          setCurrentUserPosts(currentUserPostsResponse.data.currentUserPosts);
+        }
+        else{
+          console.log("Error in the try part");
+        }
+
+      }
+      catch (error) {
+        console.error("Error while finding the posts of the current user");
+      }
+
+    }
+
+    getCurrentUserPosts();
+
+    console.log("Details inside current user: ", currentUserDetails);
+
+  }, [currentUserDetails] )
 
   return (
     <div className="bg-black text-white flex min-h-screen overflow-hidden">
@@ -173,7 +248,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
           {/* {[...Array(10)].map((_, i) => (
             <PostCard i={i} />
           ))} */}
-          {/* {allPostsData.map((post) => (
+          {currentUserPosts.map((post) => (
               <PostCard 
                 key={post.Id} 
                 id={post.Id}
@@ -184,7 +259,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
                 comments={post.Comments}
                 userId={currentUserDetails.id}
               />
-          ))} */}
+          ))}
         </div>
       </div>
 
