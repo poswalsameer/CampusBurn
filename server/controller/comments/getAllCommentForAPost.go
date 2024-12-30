@@ -3,6 +3,7 @@ package comments
 import (
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/model"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,29 +19,29 @@ FLOW TO GET ALL THE COMMENTS FOR A POST:
 */
 
 type AllCommentsResponseType struct {
-	CommentId      uint             `json:"commentId"`
-	CommentContent string           `json:"commentContent"`
-	CreatedAt      string           `json:"createdAt"`
-	PostId         uint             `json:"postId"`
-	LikeCount      uint64           `json:"likeCount"`
-	DislikeCount   uint64           `json:"dislikeCount"`
-	User           UserResponseType `json:"user"`
+	CommentId      uint
+	CommentContent string
+	CreatedAt      time.Time
+	PostId         uint
+	LikeCount      uint64
+	DislikeCount   uint64
+	User           UserResponseType
 }
 
 type UserResponseType struct {
-	UserId       uint   `json:"userId"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	ProfilePhoto string `json:"profilePhoto"`
+	UserId       uint
+	Username     string
+	Email        string
+	ProfilePhoto string
 }
 
-type RequestBody struct {
+type GetAllCommentsForAPostRequest struct {
 	PostId uint `json:"postId"`
 }
 
 func GetAllCommentForAPost(c *fiber.Ctx) error {
 
-	var reqBody RequestBody
+	var reqBody GetAllCommentsForAPostRequest
 
 	if parsingError := c.BodyParser(&reqBody); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -65,13 +66,13 @@ func GetAllCommentForAPost(c *fiber.Ctx) error {
 		})
 	}
 
-	var response []AllCommentsResponseType
+	var allCommentForThisPost []AllCommentsResponseType
 
 	for _, comment := range comments {
-		response = append(response, AllCommentsResponseType{
+		allCommentForThisPost = append(allCommentForThisPost, AllCommentsResponseType{
 			CommentId:      comment.ID,
 			CommentContent: comment.CommentContent,
-			CreatedAt:      comment.CreatedAt.Format("2006-01-02"),
+			CreatedAt:      comment.CreatedAt,
 			PostId:         comment.PostID,
 			LikeCount:      comment.LikeCount,
 			DislikeCount:   comment.DislikeCount,
@@ -85,7 +86,7 @@ func GetAllCommentForAPost(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Message": "Comments fetched successfully",
-		"data":    response,
+		"Message":  "Comments fetched successfully",
+		"Comments": allCommentForThisPost,
 	})
 }
