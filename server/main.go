@@ -71,6 +71,7 @@ func main() {
 	app.Post("/dislikeComment", middleware.AuthRequired, comments.DislikeComment)
 	app.Delete("/deleteCommentLike", middleware.AuthRequired, comments.RemoveLikeComment)
 	app.Delete("/deleteCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
+	app.Post("/allComments", comments.GetAllCommentForAPost)
 
 	// setting up the server on port 3000
 	app.Listen(":4200")
