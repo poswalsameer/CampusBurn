@@ -3,6 +3,7 @@ package users
 import (
 	"campusburn-backend/dbConnection"
 	"campusburn-backend/model"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,30 +20,58 @@ FLOW TO DELETE THE USER:
 
 func DeleteUser(c *fiber.Ctx) error {
 
-	_, ok := c.Locals("userId").(string)
+	// _, ok := c.Locals("userId").(string)
 
-	if !ok {
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"Error": "User not authorized to perform this action",
+	// 	})
+	// }
+	token := c.Cookies("token")
+
+	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Error": "User not authorized to perform this action",
+			"Message": "Unauthorized user, log in",
 		})
 	}
 
-	var currentUser model.User
-	if parsingError := c.BodyParser(&currentUser); parsingError != nil {
+	// var userId DeleteUserRequest
+
+	// if err := c.BodyParser(&userId); err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"Message": "Invalid request body",
+	// 	})
+	// }
+
+	// if userId.UserId == 0 {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"Message": "User ID is required and cannot be zero",
+	// 	})
+	// }
+
+	userId := c.Params("userId")
+	if userId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"Error": "Invalid request body",
+			"Message": "User ID is required in the URL",
+		})
+	}
+
+	UserId, err := strconv.ParseUint(userId, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{
+			"Message": "Error during converting userId to uint from string",
 		})
 	}
 
 	var userInDB model.User
-	userSearchError := dbConnection.DB.Where("ID = ?", currentUser.ID).First(&userInDB).Error
+	userSearchError := dbConnection.DB.Where("ID = ?", UserId).First(&userInDB).Error
 	if userSearchError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Error": "User not found in the DB during delete operation",
 		})
 	}
 
-	var checkID = userInDB.ID == currentUser.ID
+	var checkID = userInDB.ID == uint(UserId)
 
 	if !checkID {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
@@ -50,7 +79,24 @@ func DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
-	deleteUserError := dbConnection.DB.Where("ID = ?", userInDB.ID).Delete(userInDB).Error
+	//FIRST DELETE ALL THE COMMENTS FOR THIS USER
+	commentDeleteError := dbConnection.DB.Where("user_id = ?", userInDB.ID).Delete(&model.Comment{}).Error
+	if commentDeleteError != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Comments for this user cannot be deleted for now",
+		})
+	}
+
+	//DELETE ALL THE POSTS OF THIS USER AFTER DELETING THE COMMENTS
+	postDeleteError := dbConnection.DB.Where("user_id = ?", userInDB.ID).Delete(&model.Post{}).Error
+	if postDeleteError != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Posts for this user cannot be deleted for now",
+		})
+	}
+
+	//FINALLY DELETE THE USER AFTER DELETING THE POSTS AND THE COMMENTS
+	deleteUserError := dbConnection.DB.Where("ID = ?", userInDB.ID).Delete(&userInDB).Error
 	if deleteUserError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Error": "Cannot delete the user due to some error",

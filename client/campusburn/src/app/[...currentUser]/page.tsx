@@ -25,7 +25,7 @@ import Cookies from 'js-cookie'
 function CurrentUserProfilePage({params}: {params: any}) {
 
   const [currentPostData, setCurrentPostData] = useState<string>('');
-  const [currentUserPosts, setCurrentUserPosts] = useState<Post[]>([]);
+  const [currentUserPosts, setCurrentUserPosts] = useState<Post[] | undefined>([]);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     id: undefined,
     email: "",
@@ -102,6 +102,32 @@ function CurrentUserProfilePage({params}: {params: any}) {
     } 
     catch (error) {
       console.log("Error while creating a post: ", error);
+    }
+
+  }
+
+  const deleteUser = async () => {
+    const userId = Cookies.get("currentUserId");
+    // TODO:Remove this later
+    console.log("ID in the cookies: ", userId);
+
+    try {
+
+      const deleteUserResponse = await axios.delete(
+        `http://localhost:4200/auth/deleteUser/${userId}`,
+        { withCredentials: true },
+      )
+
+      if( deleteUserResponse.status === 200 ){
+        console.log("User deleted successfully");
+      }
+      else{
+        console.error("Error while deleting the user");
+      }
+
+    }
+    catch (error) {
+      console.error("Error while deleting the user: ", error);
     }
 
   }
@@ -238,6 +264,13 @@ function CurrentUserProfilePage({params}: {params: any}) {
             {/* <LogOut className="inline-block mr-2" /> */}
             Logout
           </button>
+          <button
+            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+            onClick={deleteUser}
+          >
+            {/* <LogOut className="inline-block mr-2" /> */}
+            Delete Account
+          </button>
         </div>
       </div>
 
@@ -248,7 +281,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
           {/* {[...Array(10)].map((_, i) => (
             <PostCard i={i} />
           ))} */}
-          {currentUserPosts.map((post) => (
+          {currentUserPosts?.map((post) => (
               <PostCard 
                 key={post.Id} 
                 id={post.Id}
@@ -286,7 +319,7 @@ function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {c
           variant="outline" 
           className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-sm font-bold py-2 px-4 rounded-md"
         >
-          Show Dialog
+          Post
         </Button>
       </AlertDialogTrigger>
 

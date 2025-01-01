@@ -36,7 +36,7 @@ import type { Post, UserPost, CurrentUser } from '@/types/types';
 
 export default function Home() {
   const [currentPostData, setCurrentPostData] = useState<string>('');
-  const [allPostsData, setAllPostsData] = useState<Post[]>([]);
+  const [allPostsData, setAllPostsData] = useState<Post[] | undefined>([]);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     id: undefined,
     email: "",
@@ -233,7 +233,7 @@ export default function Home() {
           {/* {[...Array(10)].map((_, i) => (
             <PostCard i={i} />
           ))} */}
-          {allPostsData.map((post) => (
+          {allPostsData?.map((post) => (
               <PostCard 
                 key={post.Id} 
                 id={post.Id}
@@ -269,7 +269,7 @@ function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {c
         <Button 
           variant="outline" 
           className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-sm font-bold py-2 px-4 rounded-md"
-          >Show Dialog</Button>
+          >Post</Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent className="h-96 flex flex-col justify-center items-center bg-black text-white rounded-xl border-2 border-gray-800">
