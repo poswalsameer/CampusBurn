@@ -37,6 +37,8 @@ import type { Post, UserPost, CurrentUser } from '@/types/types';
 export default function Home() {
   const [currentPostData, setCurrentPostData] = useState<string>('');
   const [allPostsData, setAllPostsData] = useState<Post[] | undefined>([]);
+  //THIS STATE WILL BE TOGGLED ON POST CREATION TO RUN THE EFFECT TO UPDATE THE POSTS IN THE UI
+  const [postCreated, setPostCreated] = useState<boolean>(false);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     id: undefined,
     email: "",
@@ -102,15 +104,18 @@ export default function Home() {
         toast({
           title: "Post created successfully",
         })
+        setPostCreated(!postCreated);
       }
       else{
         toast({
           title: "Cannot create your post at this moment",
         })
+        setPostCreated(!postCreated);
       }
     } 
     catch (error) {
       console.log("Error while creating a post: ", error);
+      setPostCreated(!postCreated);
     }
 
   }
@@ -144,8 +149,8 @@ export default function Home() {
       }
     };
 
-    //FUNCTION TO FETCH ALL POSTS IN THE DATABASE
-    const fetchAllPostsInDatabase = async () => {
+     //FUNCTION TO FETCH ALL POSTS IN THE DATABASE
+     const fetchAllPostsInDatabase = async () => {
 
       try {
         const allPostsResponse = await axios.get(
@@ -168,7 +173,7 @@ export default function Home() {
     fetchCurrentUserDetail();
     fetchAllPostsInDatabase();
 
-  }, []);
+  }, [postCreated]);
 
   // useEffect( () => {
   //   console.log("value in the state: ", currentUserDetails);
@@ -217,7 +222,7 @@ export default function Home() {
             createPost={createPost}
           />
           <button
-            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-xs tracking-wide font-bold py-2 px-4 rounded-md"
             onClick={logoutUser}
           >
             {/* <LogOut className="inline-block mr-2" /> */}
@@ -268,7 +273,7 @@ function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {c
       <AlertDialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+          className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-xs tracking-wide font-bold py-2 px-4 rounded-md"
           >Post</Button>
       </AlertDialogTrigger>
 

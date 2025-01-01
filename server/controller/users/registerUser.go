@@ -90,8 +90,8 @@ func RegisterUser(c *fiber.Ctx) error {
 		Value:    token,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HTTPOnly: true,
-		SameSite: "Strict",
-		Secure:   true,
+		SameSite: fiber.CookieSameSiteLaxMode, // Use Lax for local development
+		Secure:   false,
 	})
 
 	// SAVING THE USER INTO THE DATABASE

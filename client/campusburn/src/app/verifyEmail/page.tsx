@@ -94,7 +94,8 @@ function Page() {
         Username: username,
         Email: email,
         Password: password,
-      }
+      },
+      { withCredentials: true }
     );
 
     if (registerUserResponse.status === 200) {

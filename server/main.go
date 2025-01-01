@@ -43,6 +43,7 @@ func main() {
 	app.Post("/auth/sign-in", users.LoginUser)
 	app.Post("/auth/sign-out", users.LogoutUser)
 	app.Delete("/auth/deleteUser/:userId", middleware.AuthRequired, users.DeleteUser)
+	app.Post("/updateUser", middleware.AuthRequired, users.UpdateUser)
 	app.Post("/sendEmail", users.SendEmail)
 	app.Post("/verifyEmail", users.VerifyEmail)
 	app.Post("/getCurrentUser", users.GetCurrentUser)

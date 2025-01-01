@@ -35,20 +35,6 @@ func DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// var userId DeleteUserRequest
-
-	// if err := c.BodyParser(&userId); err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"Message": "Invalid request body",
-	// 	})
-	// }
-
-	// if userId.UserId == 0 {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"Message": "User ID is required and cannot be zero",
-	// 	})
-	// }
-
 	userId := c.Params("userId")
 	if userId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
