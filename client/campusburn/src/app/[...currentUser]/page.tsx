@@ -21,11 +21,13 @@ import type { CurrentUser, Post } from '@/types/types'
 import { usePathname, useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/use-toast'
 import Cookies from 'js-cookie'
+import UpdateUserDialog from '@/components/update-user-dialog'
 
 function CurrentUserProfilePage({params}: {params: any}) {
 
   const [currentPostData, setCurrentPostData] = useState<string>('');
   const [currentUserPosts, setCurrentUserPosts] = useState<Post[] | undefined>([]);
+  const [updateUserDetails, setUpdateUserDetails] = useState<boolean>(false);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
     id: undefined,
     email: "",
@@ -39,6 +41,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const userId = Cookies.get("currentUserId");
   
   console.log("Pathname: ", pathname);
 
@@ -119,6 +122,9 @@ function CurrentUserProfilePage({params}: {params: any}) {
       )
 
       if( deleteUserResponse.status === 200 ){
+        Cookies.remove("token");
+        Cookies.remove("currentUserId");
+        router.push("/");
         console.log("User deleted successfully");
       }
       else{
@@ -159,8 +165,15 @@ function CurrentUserProfilePage({params}: {params: any}) {
 
         if( currentUserDetailsResponse.status === 200 ){
           console.log("Details of the current user: ", currentUserDetailsResponse.data.CurrentUser);
-          setCurrentUserDetails(currentUserDetailsResponse.data.CurrentUser);
-          setCurrentUserDetails({...currentUserDetails, id: currentUserId})
+          setCurrentUserDetails({
+            id: currentUserId,
+            email: currentUserDetailsResponse.data.CurrentUser.Email,
+            username: currentUserDetailsResponse.data.CurrentUser.Username,
+            profilePhoto: currentUserDetailsResponse.data.CurrentUser.ProfilePhoto,
+            posts: currentUserDetailsResponse.data.CurrentUser.Posts,
+            comments: currentUserDetailsResponse.data.CurrentUser.Comments,
+            createdAt: currentUserDetailsResponse.data.CurrentUser.CreatedAt,
+          })
         }
         else{
           console.log("Error in the try part");
@@ -173,7 +186,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
     }
 
     fetchCurrentUser();
-  }, [])
+  }, [updateUserDetails])
 
   useEffect( () => {
 
@@ -225,7 +238,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
           <div>
             {/* <h2 className="font-bold">John Doe</h2> */}
             <h2 className="text-base font-bold text-white">
-              {params.currentUser}
+              {currentUserDetails.username}
             </h2>
           </div>
         </div>
@@ -252,20 +265,25 @@ function CurrentUserProfilePage({params}: {params: any}) {
           {/* <button className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white text-sm font-bold py-2 px-4 rounded-md">
             Post
           </button> */}
+          <UpdateUserDialog 
+            userId={userId}
+            updateUserDetails={updateUserDetails}
+            setUpdateUserDetails={setUpdateUserDetails}
+          />
           <CreatePostButton 
             currentPostData={currentPostData}
             setCurrentPostData={setCurrentPostData}
             createPost={createPost}
           />
           <button
-            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-xs tracking-wide font-bold py-2 px-4 rounded-md"
             onClick={logoutUser}
           >
             {/* <LogOut className="inline-block mr-2" /> */}
             Logout
           </button>
           <button
-            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+            className="w-[70%] bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white text-xs tracking-wide font-bold py-2 px-4 rounded-md"
             onClick={deleteUser}
           >
             {/* <LogOut className="inline-block mr-2" /> */}
@@ -317,7 +335,7 @@ function CreatePostButton({ currentPostData, setCurrentPostData, createPost}: {c
       <AlertDialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-sm font-bold py-2 px-4 rounded-md"
+          className="w-[70%] bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white text-xs tracking-wide font-bold py-2 px-4 rounded-md"
         >
           Post
         </Button>
