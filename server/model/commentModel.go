@@ -13,4 +13,5 @@ type Comment struct {
 	User           User
 	LikeCount      uint64
 	DislikeCount   uint64
+	LikedByUsers   []User `gorm:"many2many:user_comment_likes;"`
 }

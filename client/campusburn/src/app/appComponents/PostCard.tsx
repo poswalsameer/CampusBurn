@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast, useToast } from "@/hooks/use-toast";
+import type { Comments } from "@/types/types";
 import axios from "axios";
-import { log } from "console";
 import {
   MessageCircle,
   Send,
@@ -14,7 +14,8 @@ import {
   UserCircle,
   X,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import CommentCard from "./CommentCard";
 
 function PostCard({
   id,
@@ -33,8 +34,10 @@ function PostCard({
   comments: any[];
   userId: number | undefined;
 }) {
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-  const [newComment, setNewComment] = useState("");
+  const [isCommentsOpen, setIsCommentsOpen] = useState<boolean>(false);
+  const [commentsForThisPost, setCommentForThisPost] = useState<Comments[] | undefined>([]);
+  const [newCommentCreation, setNewCommentCreation] = useState<boolean>(false);
+  const [newComment, setNewComment] = useState<string>("");
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +53,24 @@ function PostCard({
     setNewComment("");
   }
 
+  //TODO:Complete this like function after writing down the controllers
+  // const handlePostLike = async () => {
+   
+  //   try {
+
+  //     const likeResponse = await axios.post(
+  //       "https://localhost:4200/likePost"
+  //     )
+
+  //   } 
+  //   catch (error) {
+  //     console.error("Error while liking/unliking the post: ", error);
+  //   }
+    
+  // }
+
+  // FUNCTION TO ADD A COMMENT
+  
   const addComment = async () => {
 
     if( newComment === "" ){
@@ -75,6 +96,7 @@ function PostCard({
         console.log("Comment not added");
         setIsCommentsOpen(false);
         setNewComment("");
+        setNewCommentCreation(!newCommentCreation);
       }
       else{
         toast({
@@ -84,6 +106,7 @@ function PostCard({
         setNewComment("");
         //TODO:Remove this log later
         console.log("Response after adding comment: ", addCommentResponse.data);
+        setNewCommentCreation(!newCommentCreation);
       }
 
     } 
@@ -91,9 +114,44 @@ function PostCard({
       console.log("Error while adding comment: ", error);
       setIsCommentsOpen(false);
       setNewComment("");
+      setNewCommentCreation(!newCommentCreation);
     }
 
   }
+
+  // FUNCTION TO GET ALL COMMENTS FOR A POST
+  const getAllCommentsForThisPost = async () => {
+
+    setIsCommentsOpen(true);
+
+    try {
+     
+      const getAllCommentsResponse = await axios.post(
+        "http://localhost:4200/allComments",
+        { postId: id },
+        { withCredentials: true }
+      )
+
+      if( getAllCommentsResponse.status === 200 ){
+        //TODO:Remove this later
+        console.log("Comments fetched: ", getAllCommentsResponse.data.Comments);
+        setCommentForThisPost(getAllCommentsResponse.data.Comments);
+      }
+      else{
+        console.log("error in the try part while fetching comments");
+      }
+      
+    }
+    catch (error) {
+      console.error("Error while getting the comments for this post: ", error);        
+    }
+
+  }
+
+  useEffect(() => {
+    getAllCommentsForThisPost();
+    setIsCommentsOpen(false);
+  }, [newCommentCreation] )
 
   return (
     <div>
@@ -117,10 +175,10 @@ function PostCard({
           </button>
           <button
             className="flex items-center space-x-1 text-gray-400 hover:text-green-500"
-            onClick={() => setIsCommentsOpen(true)}
+            onClick={getAllCommentsForThisPost}
           >
             <MessageCircle className="w-4 h-4" />
-            <span>{comments?.length}</span>
+            <span>{commentsForThisPost?.length}</span>
           </button>
         </div>
         {isCommentsOpen && (
@@ -150,12 +208,14 @@ function PostCard({
                 <Send className="w-3 h-3" />
               </Button>
             </form>
-            <div className="space-y-2">
-              {comments.map((comment) => (
-                <div key={comment.id} className="bg-gray-900 p-2 rounded">
-                  <div className="font-bold">{comment.username}</div>
-                  <div>{comment.content}</div>
-                </div>
+            <div className="space-y-4">
+              {commentsForThisPost?.map((comment) => (
+                <CommentCard 
+                  id={comment.Id}
+                  content={comment.CommentContent}
+                  username={comment.User.Username}
+                  createdAt={comment.CreatedAt}
+                />
               ))}
             </div>
           </div>

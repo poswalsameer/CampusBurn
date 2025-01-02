@@ -34,4 +34,14 @@ interface UserPost {
     Username: string;
 }
 
-export type { Post, CurrentUser, CurrentUserWithoutPostAndComment, UserPost }
+interface Comments {
+    CommentContent: string;
+    Id: number;
+    CreatedAt: Date;
+    DislikeCount: number;
+    LikeCount: number;
+    PostId: number;
+    User: UserPost;
+}
+
+export type { Post, CurrentUser, CurrentUserWithoutPostAndComment, UserPost, Comments }

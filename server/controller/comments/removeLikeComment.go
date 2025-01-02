@@ -19,33 +19,63 @@ FLOW TO LIKE A COMMENT:
 
 // LIKE AND UNLIKE API WILL HIT CONDITIONALLY FROM THE FRONTEND THROUGH A boolean VARIABLE
 
+type RemoveLikeCommentRequest struct {
+	CommentId uint `json:"commentId"`
+	UserId    uint `json:"userId"`
+}
+
 func RemoveLikeComment(c *fiber.Ctx) error {
 
-	_, ok := c.Locals("userId").(string)
+	var req RemoveLikeCommentRequest
 
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Message": "Unauthorized user while liking the comment",
-		})
-	}
-
-	var comment model.Comment
-	if parsingError := c.BodyParser(&comment); parsingError != nil {
+	if parsingError := c.BodyParser(&req); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Message": "Invalid request body",
 		})
 	}
 
-	commentSearchError := dbConnection.DB.Where("ID = ?", comment.ID).First(&comment).Error
-	if commentSearchError != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"Message": "Comment not found",
+	if req.CommentId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong Comment ID entered",
 		})
 	}
 
-	comment.LikeCount = comment.LikeCount - 1
+	var currentComment model.Comment
+	commentSearchError := dbConnection.DB.Where("ID = ?", req.CommentId).First(&currentComment).Error
+	if commentSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "Comment not found in the DB",
+		})
+	}
 
-	commentSaveError := dbConnection.DB.Save(&comment).Error
+	//FINDING THE USER
+	var currentUser model.User
+	userSearchError := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
+	if userSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "User not found in the DB",
+		})
+	}
+
+	// CHECKING IF THE USER HAS ALREADY REMOVED LIKE FROM THE COMMENT
+	for _, users := range currentComment.LikedByUsers {
+		if users.ID != currentUser.ID {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"Message": "User has already unliked the comment",
+			})
+		}
+	}
+
+	// REMOVING THE USER FROM THE LIST OF LIKED COMMENT LIST
+	if err := dbConnection.DB.Model(&currentComment).Association("LikedByUsers").Delete(&currentUser); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while removing the user from the liked comment list",
+		})
+	}
+
+	currentComment.LikeCount = currentComment.LikeCount - 1
+
+	commentSaveError := dbConnection.DB.Save(&currentComment).Error
 	if commentSaveError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Message": "Error while saving the comment after unliking",
@@ -53,8 +83,9 @@ func RemoveLikeComment(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Message":    "Unliked to the comment successfully",
-		"comment ID": comment.ID,
+		"Message":            "Unliked to the comment successfully",
+		"comment ID":         currentComment.ID,
+		"Comment unliked by": currentUser.ID,
 	})
 
 }

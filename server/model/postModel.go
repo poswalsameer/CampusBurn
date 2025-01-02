@@ -12,4 +12,6 @@ type Post struct {
 	LikeCount    uint64 `gorm:"default:0"`
 	DislikeCount uint64 `gorm:"default:0"`
 	Comments     []Comment
+	// RELATIONSHIP OF LIKES BETWEEN USER AND POSTS
+	LikedByUsers []User `gorm:"many2many:user_post_likes;"`
 }

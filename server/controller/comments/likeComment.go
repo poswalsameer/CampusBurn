@@ -19,33 +19,62 @@ FLOW TO LIKE A COMMENT:
 
 // LIKE AND UNLIKE API WILL HIT CONDITIONALLY FROM THE FRONTEND THROUGH A boolean VARIABLE
 
+type LikeCommentRequest struct {
+	CommentId uint `json:"commentId"`
+	UserId    uint `json:"userId"`
+}
+
 func LikeComment(c *fiber.Ctx) error {
 
-	_, ok := c.Locals("userId").(string)
+	var req LikeCommentRequest
 
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Message": "Unauthorized user while liking the comment",
-		})
-	}
-
-	var comment model.Comment
-	if parsingError := c.BodyParser(&comment); parsingError != nil {
+	if parsingError := c.BodyParser(&req); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Message": "Invalid request body",
 		})
 	}
 
-	commentSearchError := dbConnection.DB.Where("ID = ?", comment.ID).First(&comment).Error
-	if commentSearchError != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"Message": "Comment not found",
+	if req.CommentId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong Comment ID entered",
 		})
 	}
 
-	comment.LikeCount = comment.LikeCount + 1
+	var currentComment model.Comment
+	commentSearchError := dbConnection.DB.Where("ID = ?", req.CommentId).First(&currentComment).Error
+	if commentSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "Comment not found in the DB",
+		})
+	}
 
-	commentSaveError := dbConnection.DB.Save(&comment).Error
+	var currentUser model.User
+	userSearchError := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
+	if userSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "User not found in the DB",
+		})
+	}
+
+	//CHECKING IF THE USER HAS ALREADY LIKED A COMMENT
+	for _, user := range currentComment.LikedByUsers {
+		if user.ID == currentUser.ID {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"Message": "User has already liked the comment",
+			})
+		}
+	}
+
+	// ADD THIS USER TO THE LIST OF LIKED COMMENTS BY USERS
+	if err := dbConnection.DB.Model(&currentComment).Association("LikedByUsers").Append(&currentUser); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while adding the user to the list of liked comments",
+		})
+	}
+
+	currentComment.LikeCount = currentComment.LikeCount + 1
+
+	commentSaveError := dbConnection.DB.Save(&currentComment).Error
 	if commentSaveError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Message": "Error while saving the comment after liking",
@@ -54,7 +83,8 @@ func LikeComment(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":          "Like added to the comment successfully",
-		"Liked comment ID": comment.ID,
+		"Liked comment ID": currentComment.ID,
+		"Comment liked by": currentUser.ID,
 	})
 
 }
