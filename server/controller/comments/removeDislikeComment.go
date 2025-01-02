@@ -17,33 +17,61 @@ FLOW TO LIKE A COMMENT:
 
 */
 
+type RemoveDislikeCommentRequest struct {
+	CommentId int `json:"commentId"`
+	UserId    int `json:"userId"`
+}
+
 func RemoveDislikeComment(c *fiber.Ctx) error {
 
-	_, ok := c.Locals("userId").(string)
-
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Message": "Unauthorized user while liking the comment",
-		})
-	}
-
-	var comment model.Comment
-	if parsingError := c.BodyParser(&comment); parsingError != nil {
+	var req RemoveDislikeCommentRequest
+	if parsingError := c.BodyParser(&req); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Message": "Invalid request body",
 		})
 	}
+	if req.CommentId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong comment ID entered",
+		})
+	}
 
-	commentSearchError := dbConnection.DB.Where("ID = ?", comment.ID).First(&comment).Error
+	var currentComment model.Comment
+	commentSearchError := dbConnection.DB.Where("ID = ?", req.CommentId).First(&currentComment).Error
 	if commentSearchError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Message": "Comment not found",
 		})
 	}
 
-	comment.DislikeCount = comment.DislikeCount - 1
+	//SEARCHING THE USER IN THE DB
+	var currentUser model.User
+	userSearchError := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
+	if userSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "User not found in the DB",
+		})
+	}
 
-	commentSaveError := dbConnection.DB.Save(&comment).Error
+	//CHECKING IF THE USER HAS ALREADY REMOVED DISLIKE FROM THE COMMENT
+	for _, user := range currentComment.DislikedByUsers {
+		if user.ID != currentUser.ID {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"Message": "User has already removed dislike from the comment",
+			})
+		}
+	}
+
+	// REMOVING THE USER FROM THE LIST OF DISLIKES
+	if err := dbConnection.DB.Model(&currentComment).Association("DislikedByUsers").Delete(&currentUser); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while removing the user from the list of dislikes",
+		})
+	}
+
+	currentComment.DislikeCount = currentComment.DislikeCount - 1
+
+	commentSaveError := dbConnection.DB.Save(&currentComment).Error
 	if commentSaveError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Message": "Error while saving the comment after removing dislike",
@@ -51,8 +79,9 @@ func RemoveDislikeComment(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Message":    "removed dislike from the comment successfully",
-		"comment ID": comment.ID,
+		"Message":            "removed dislike from the comment successfully",
+		"Comment ID":         currentComment.ID,
+		"Dislike removed by": currentUser.ID,
 	})
 
 }

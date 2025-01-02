@@ -7,27 +7,63 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type AddDislikeRequest struct {
+	PostId uint `json:"postId"`
+	UserId uint `json:"userId"`
+}
+
 func AddDislike(c *fiber.Ctx) error {
 
-	var post model.Post
-	if parsingError := c.BodyParser(&post); parsingError != nil {
+	var req AddDislikeRequest
+
+	if parsingError := c.BodyParser(&req); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"Error": "Invalid request body",
+			"Message": "Invalid request body",
 		})
 	}
 
-	var thisPost model.Post
-	searchPostError := dbConnection.DB.Where("ID = ?", post.ID).First(&thisPost).Error
+	if req.PostId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong Post ID entered",
+		})
+	}
 
+	var currentPost model.Post
+	searchPostError := dbConnection.DB.Where("ID = ?", req.PostId).First(&currentPost).Error
 	if searchPostError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Error": "Post not found in the DB",
 		})
 	}
 
-	thisPost.DislikeCount = thisPost.DislikeCount + 1
+	//FIND THE USER
+	var currentUser model.User
+	userSearchError := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
+	if userSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "User not found in the DB",
+		})
+	}
 
-	savePostError := dbConnection.DB.Save(&thisPost).Error
+	// CHECK IF THE USER HAS ALREADY DISLIKED THE POST
+	for _, user := range currentPost.DislikedByUsers {
+		if user.ID == currentPost.ID {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"Message": "User has already disliked this post",
+			})
+		}
+	}
+
+	// ADD THE USER TO THE DISLIKED BY LIST
+	if err := dbConnection.DB.Model(&currentPost).Association("DislikedByUsers").Append(&currentUser); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while adding the user to the disliked by list",
+		})
+	}
+
+	currentPost.DislikeCount = currentPost.DislikeCount + 1
+
+	savePostError := dbConnection.DB.Save(&currentPost).Error
 	if savePostError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Error": "Error while saving the post in the DB",
@@ -36,7 +72,8 @@ func AddDislike(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":       "Dislike added successfully",
-		"Dislike count": thisPost.DislikeCount,
+		"Dislike count": currentPost.DislikeCount,
+		"Disliked by":   currentUser.ID,
 	})
 
 }

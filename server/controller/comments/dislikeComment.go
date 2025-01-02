@@ -17,33 +17,63 @@ FLOW TO DISLIKE A COMMENT:
 
 */
 
+type DislikeCommentRequest struct {
+	CommentId uint `json:"commentId"`
+	UserId    uint `json:"userId"`
+}
+
 func DislikeComment(c *fiber.Ctx) error {
 
-	_, ok := c.Locals("userId").(string)
+	var req DislikeCommentRequest
 
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Message": "Unauthorized user while disliking the comment",
-		})
-	}
-
-	var comment model.Comment
-	if parsingError := c.BodyParser(&comment); parsingError != nil {
+	if parsingError := c.BodyParser(&req); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Message": "Invalid request body",
 		})
 	}
 
-	commentSearchError := dbConnection.DB.Where("ID = ?", comment.ID).First(&comment).Error
-	if commentSearchError != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"Message": "Comment not found",
+	if req.CommentId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong comment ID entered",
 		})
 	}
 
-	comment.DislikeCount = comment.DislikeCount + 1
+	var currentComment model.Comment
+	commentSearchError := dbConnection.DB.Where("ID = ?", req.CommentId).First(&currentComment).Error
+	if commentSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "Comment not found in the DB",
+		})
+	}
 
-	commentSaveError := dbConnection.DB.Save(&comment).Error
+	// SEARCH THE USER IN THE DB
+	var currentUser model.User
+	userSearchError := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
+	if userSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "User not found in the DB",
+		})
+	}
+
+	//CHECKING IF THE USER HAS ALREADY DISLIKED THE COMMENT
+	for _, user := range currentComment.DislikedByUsers {
+		if user.ID == currentUser.ID {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"Message": "User has already disliked the comment",
+			})
+		}
+	}
+
+	// ADDING THE USER TO THE LIST OF DISLIKES
+	if err := dbConnection.DB.Model(&currentComment).Association("DislikedByUsers").Append(&currentUser); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while adding user to the list of comment dislikes",
+		})
+	}
+
+	currentComment.DislikeCount = currentComment.DislikeCount + 1
+
+	commentSaveError := dbConnection.DB.Save(&currentComment).Error
 	if commentSaveError != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Message": "Error while saving the comment after disliking",
@@ -52,7 +82,8 @@ func DislikeComment(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Message":             "Dislike added to the comment successfully",
-		"Disliked comment ID": comment.ID,
+		"Disliked comment ID": currentComment.ID,
+		"Disliked by":         currentUser.ID,
 	})
 
 }

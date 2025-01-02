@@ -60,7 +60,7 @@ func main() {
 	app.Post("/likePost", posts.AddLike)
 	app.Post("/dislikePost", posts.AddDislike)
 	app.Post("/removeLike", posts.RemoveLike)
-	app.Delete("/deletePostDislike", posts.RemoveDislike)
+	app.Post("/removePostDislike", posts.RemoveDislike)
 	app.Get("/getAllPosts", posts.GetAllPosts)
 	app.Post("/getCurrentUserPosts", posts.GetCurrentUserPosts)
 
@@ -69,9 +69,9 @@ func main() {
 	app.Put("/editComment", middleware.AuthRequired, comments.EditComment)
 	app.Delete("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
 	app.Post("/likeComment", comments.LikeComment)
-	app.Post("/dislikeComment", middleware.AuthRequired, comments.DislikeComment)
+	app.Post("/dislikeComment", comments.DislikeComment)
 	app.Post("/removeCommentLike", comments.RemoveLikeComment)
-	app.Delete("/deleteCommentDislike", middleware.AuthRequired, comments.RemoveDislikeComment)
+	app.Post("/removeCommentDislike", comments.RemoveDislikeComment)
 	app.Post("/allComments", comments.GetAllCommentForAPost)
 
 	// setting up the server on port 3000
