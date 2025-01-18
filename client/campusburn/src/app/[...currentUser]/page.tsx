@@ -309,6 +309,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
                 dislikeCount={post.DislikeCount}
                 comments={post.Comments}
                 userId={currentUserDetails.id}
+                profilePage={true}
               />
           ))}
         </div>

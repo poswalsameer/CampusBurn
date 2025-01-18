@@ -248,6 +248,7 @@ export default function Home() {
                 dislikeCount={post.DislikeCount}
                 comments={post.Comments}
                 userId={currentUserDetails.id}
+                profilePage={false}
               />
           ))}
         </div>
