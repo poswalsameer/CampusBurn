@@ -30,13 +30,14 @@ interface CurrentUserWithoutPostAndComment {
 interface UserPost {
     Email: string;
     Id: number;
+    UserId: number;
     ProfilePhoto: string;
     Username: string;
 }
 
 interface Comments {
     CommentContent: string;
-    Id: number;
+    CommentId: number;
     CreatedAt: Date;
     DislikeCount: number;
     LikeCount: number;

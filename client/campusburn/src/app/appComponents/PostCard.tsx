@@ -25,7 +25,7 @@ function PostCard({
   likeCount,
   dislikeCount,
   comments,
-  userId,
+  currentUserId,
   profilePage,
 }: {
   id: number;
@@ -34,7 +34,7 @@ function PostCard({
   likeCount: number;
   dislikeCount: number;
   comments: any[];
-  userId: number | undefined;
+  currentUserId: number | undefined;
   profilePage: boolean;
 }) {
   const [isCommentsOpen, setIsCommentsOpen] = useState<boolean>(false);
@@ -43,6 +43,7 @@ function PostCard({
   >([]);
   const [newCommentCreation, setNewCommentCreation] = useState<boolean>(false);
   const [newComment, setNewComment] = useState<string>("");
+  const [loadingComments, setLoadingComments] = useState<boolean>(false);
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +91,7 @@ function PostCard({
         {
           PostId: id,
           CommentContent: newComment,
-          UserId: userId,
+          UserId: currentUserId,
         },
         { withCredentials: true }
       );
@@ -120,6 +121,9 @@ function PostCard({
 
   // FUNCTION TO GET ALL COMMENTS FOR A POST
   const getAllCommentsForThisPost = async () => {
+
+    console.log("Current user id: ", currentUserId);
+    setLoadingComments(true);
     setIsCommentsOpen(true);
 
     try {
@@ -133,17 +137,23 @@ function PostCard({
         //TODO:Remove this later
         console.log("Comments fetched: ", getAllCommentsResponse.data.Comments);
         setCommentForThisPost(getAllCommentsResponse.data.Comments);
+
+        setLoadingComments(false);
       } else {
         console.log("error in the try part while fetching comments");
+        setLoadingComments(false);
       }
     } catch (error) {
       console.error("Error while getting the comments for this post: ", error);
+      setLoadingComments(false);
     }
   };
 
   useEffect(() => {
     getAllCommentsForThisPost();
     setIsCommentsOpen(false);
+    // console.log("comments for this post in the second effect: ", commentsForThisPost)
+    // commentsForThisPost
   }, [newCommentCreation]);
 
   return (
@@ -171,49 +181,55 @@ function PostCard({
           onClick={getAllCommentsForThisPost}
         >
           <MessageCircle className="w-4 h-4" />
-          <span>{commentsForThisPost?.length}</span>
+          <span>{commentsForThisPost!.length}</span>
         </button>
       </div>
-      {isCommentsOpen && (
-        <div className="mt-4 space-y-4">
-          <form onSubmit={handleCommentSubmit} className="flex space-x-2">
-            <Textarea
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="border-gray-800 focus-within:outline-none bg-transparent text-gray-100 flex-grow"
-            />
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="p-2 bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white"
-              onClick={closeCommentBox}
-            >
-              <X className="w-3 h-3" />
-            </Button>
-            <Button
-              type="submit"
-              size="sm"
-              className="bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white p-2"
-              onClick={addComment}
-            >
-              <Send className="w-3 h-3" />
-            </Button>
-          </form>
-          <div className="space-y-4">
-            {commentsForThisPost?.map((comment) => (
-              <CommentCard
-                id={comment.Id}
-                userId={comment.User.Id}
-                content={comment.CommentContent}
-                username={comment.User.Username}
-                createdAt={comment.CreatedAt}
+      {isCommentsOpen &&
+        (loadingComments ? (
+          <div>Loading comments...</div>
+        ) : (
+          <div className="mt-4 space-y-4">
+            <form onSubmit={handleCommentSubmit} className="flex space-x-2">
+              <Textarea
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="border-gray-800 focus-within:outline-none bg-transparent text-gray-100 flex-grow"
               />
-            ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="p-2 bg-black hover:bg-red-500/70 transition-all delay-75 ease-linear border-2 border-red-600/40 text-red-500 hover:text-white"
+                onClick={closeCommentBox}
+              >
+                <X className="w-3 h-3" />
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-blue-600/20 hover:bg-blue-950 transition-all delay-75 ease-linear border-2 border-blue-400/20 text-white hover:text-white p-2"
+                onClick={addComment}
+              >
+                <Send className="w-3 h-3" />
+              </Button>
+            </form>
+            <div className="space-y-4">
+              {commentsForThisPost!.map((currentComment) => (
+                <CommentCard
+                  id={currentComment.CommentId}
+                  userId={currentComment.User.UserId}
+                  currentUserId={currentUserId}
+                  content={currentComment.CommentContent}
+                  username={currentComment.User.Username}
+                  createdAt={currentComment.CreatedAt}
+                  commentsForThisPost={commentsForThisPost}
+                  setCommentsForThisPost={setCommentForThisPost}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
       {profilePage ? (
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
@@ -221,7 +237,9 @@ function PostCard({
         >
           <Trash2 className="h-4 w-4" />
         </button>
-      ) : ( <></> ) }
+      ) : (
+        <></>
+      )}
     </div>
 
     // {/* </div> */}

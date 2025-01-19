@@ -17,40 +17,65 @@ FLOW TO DELETE A COMMENT:
 
 */
 
+type DeleteCommentRequestType struct {
+	CommentId uint `json:"commentId"`
+	UserId    uint `json:"userId"`
+}
+
 func DeleteComment(c *fiber.Ctx) error {
 
-	userId, ok := c.Locals("userId").(string)
+	// userId, ok := c.Locals("userId").(string)
 
-	if !ok {
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"Message": "Unauthorized user while editing the comment",
+	// 	})
+	// }
+
+	token := c.Cookies("token")
+	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Message": "Unauthorized user while editing the comment",
+			"Message": "Unauthorized user, please log in",
 		})
 	}
 
-	var comment model.Comment
-	if parsingError := c.BodyParser(&comment); parsingError != nil {
+	var req DeleteCommentRequestType
+	if parsingError := c.BodyParser(&req); parsingError != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Message": "Invalid request body",
 		})
 	}
 
+	if req.CommentId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong comment ID entered",
+		})
+	}
+	if req.UserId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong user ID entered",
+		})
+	}
+
+	// Find the comment with this ID
 	var currentComment model.Comment
-	commentSearchError := dbConnection.DB.Where("ID = ?", comment.ID).First(&currentComment).Error
+	commentSearchError := dbConnection.DB.Where("ID = ?", req.CommentId).First(&currentComment).Error
 	if commentSearchError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Message": "Comment to delete not found",
 		})
 	}
 
+	//Finding the user with this ID
 	var currentUser model.User
-	userSearchError := dbConnection.DB.Where("Email = ?", userId).First(&currentUser).Error
+	userSearchError := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
 	if userSearchError != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Message": "User not found while deleting the comment",
 		})
 	}
 
-	var checkID = comment.UserID == currentUser.ID
+	var checkID = currentComment.UserID == currentUser.ID
 
 	if !checkID {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{

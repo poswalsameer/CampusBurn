@@ -247,7 +247,7 @@ export default function Home() {
                 likeCount={post.LikeCount}
                 dislikeCount={post.DislikeCount}
                 comments={post.Comments}
-                userId={currentUserDetails.id}
+                currentUserId={currentUserDetails.id}
                 profilePage={false}
               />
           ))}
