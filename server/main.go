@@ -67,7 +67,7 @@ func main() {
 	// CONTROLLERS RELATED TO COMMENTS
 	app.Post("/addComment", middleware.AuthRequired, comments.AddComment)
 	app.Put("/editComment", middleware.AuthRequired, comments.EditComment)
-	app.Delete("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
+	app.Post("/deleteComment", middleware.AuthRequired, comments.DeleteComment)
 	app.Post("/likeComment", comments.LikeComment)
 	app.Post("/dislikeComment", comments.DislikeComment)
 	app.Post("/removeCommentLike", comments.RemoveLikeComment)
