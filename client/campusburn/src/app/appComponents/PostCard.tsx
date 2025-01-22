@@ -22,8 +22,8 @@ function PostCard({
   id,
   username,
   content,
-  likeCount,
-  dislikeCount,
+  likeCount: initialLikeCount,
+  dislikeCount: initialDislikeCount,
   comments,
   currentUserId,
   profilePage,
@@ -42,15 +42,10 @@ function PostCard({
     Comments[] | undefined
   >([]);
   const [newCommentCreation, setNewCommentCreation] = useState<boolean>(false);
+  const [likeCount, setLikeCount] = useState<number>(initialLikeCount);
+  const [dislikeCount, setDislikeCount] = useState<number>(initialDislikeCount);
   const [newComment, setNewComment] = useState<string>("");
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
-
-  const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically send the new comment to your backend
-    console.log("New comment:", newComment);
-    setNewComment("");
-  };
 
   const { toast } = useToast();
 
@@ -59,7 +54,6 @@ function PostCard({
     setNewComment("");
   };
 
-  //TODO:Complete this like function after writing down the controllers
   // const handlePostLike = async () => {
 
   //   try {
@@ -77,6 +71,7 @@ function PostCard({
 
   // FUNCTION TO ADD A COMMENT
 
+  // FUNCTION TO ADD A COMMENT
   const addComment = async () => {
     if (newComment === "") {
       toast({
@@ -118,6 +113,52 @@ function PostCard({
       setNewCommentCreation(!newCommentCreation);
     }
   };
+
+  // FUNCTION TO LIKE A POST
+  const likePost = async (postId: number) => {
+    //Add the like as soon as the user clicks the like button
+    setLikeCount(likeCount + 1);
+
+    try {
+      const likePostResponse = await axios.post("http://localhost:4200/likePost", {
+        PostId: postId,
+        UserId: currentUserId,
+      }, { withCredentials: true })
+
+      if (likePostResponse.status === 200) {
+        console.log("Post liked successfully: ", likePostResponse.data);
+        setLikeCount(likePostResponse.data.LikeCount);
+      } else {
+        console.log("Error while liking/unliking the post");
+      }
+    } catch (error) {
+      setLikeCount(likeCount - 1);
+      console.log("Error while liking/unliking the post: ", error);
+    }
+  }
+
+  // FUNCTION TO DISLIKE A POST
+  const dislikePost = async (postId: number) => {
+    setDislikeCount(dislikeCount + 1);
+
+    try {
+      const dislikePostResponse = await axios.post("http://localhost:4200/dislikePost", {
+        PostId: postId,
+        UserId: currentUserId,
+      }, { withCredentials: true })
+
+      if (dislikePostResponse.status === 200) {
+        console.log("Post disliked successfully: ", dislikePostResponse.data);
+        setDislikeCount(dislikePostResponse.data.DislikeCount);
+      } else {
+        console.log("Error while disliking/undisliking the post");
+      }
+
+    } catch (error) {
+      setDislikeCount(dislikeCount - 1);
+      console.log("Error while disliking/undisliking the post: ", error);
+    }
+  }
 
   // FUNCTION TO GET ALL COMMENTS FOR A POST
   const getAllCommentsForThisPost = async () => {
@@ -168,19 +209,25 @@ function PostCard({
       </div>
       <p className="text-sm mb-4">{content}</p>
       <div className="flex ml-1 space-x-4">
-        <button className="flex items-center space-x-1 text-gray-400 hover:text-blue-500">
-          <ThumbsUp className="w-4 h-4" />
-          <span>{likeCount}</span>
+        <button
+          className="flex items-center space-x-1 text-gray-400 hover:text-blue-500"
+          onClick={() => likePost(id)}
+        >
+          <ThumbsUp className="w-4 h-4 text-blue-500" />
+          <span>{likeCount < 0 ? 0 : likeCount}</span>
         </button>
-        <button className="mt-1 flex items-center space-x-1 text-gray-400 hover:text-red-500">
-          <ThumbsDown className="w-4 h-4" />
-          <span>{dislikeCount}</span>
+        <button
+          className="mt-1 flex items-center space-x-1 text-gray-400 hover:text-red-500"
+          onClick={() => dislikePost(id)}
+        >
+          <ThumbsDown className="w-4 h-4 text-red-500" />
+          <span>{dislikeCount < 0 ? 0 : dislikeCount}</span>
         </button>
         <button
           className="flex items-center space-x-1 text-gray-400 hover:text-green-500"
           onClick={getAllCommentsForThisPost}
         >
-          <MessageCircle className="w-4 h-4" />
+          <MessageCircle className="w-4 h-4 text-green-500" />
           <span>{commentsForThisPost!.length}</span>
         </button>
       </div>
@@ -189,7 +236,7 @@ function PostCard({
           <div>Loading comments...</div>
         ) : (
           <div className="mt-4 space-y-4">
-            <form onSubmit={handleCommentSubmit} className="flex space-x-2">
+            <div className="flex space-x-2">
               <Textarea
                 placeholder="Add a comment..."
                 value={newComment}
@@ -213,7 +260,7 @@ function PostCard({
               >
                 <Send className="w-3 h-3" />
               </Button>
-            </form>
+            </div>
             <div className="space-y-4">
               {commentsForThisPost!.map((currentComment) => (
                 <CommentCard

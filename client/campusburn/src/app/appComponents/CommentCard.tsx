@@ -1,8 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Comments } from "@/types/types";
 import axios from "axios";
-import { Trash2, UserIcon, XCircleIcon } from "lucide-react";
-import { comment } from "postcss";
+import { Trash2, UserIcon } from "lucide-react";
 import React from "react";
 
 //TODO: Types should be same as used in the backend
@@ -37,7 +35,7 @@ function CommentCard({
     const differenceInHours = Math.ceil(differenceInMinutes / 60);
     differenceInDays = differenceInHours; 
   }
-
+  
   // FUNCTION TO DELETE A COMMENT
   const deleteComment = async (commentId: number, currentUserId: number) => {
     console.log("Sending request with:", { commentId: commentId, userId: currentUserId });
