@@ -3,6 +3,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import LoadingSpinner from "../appComponents/Loading";
+import ToastNew from "@/components/newToast";
 
 interface UserLoginDetails {
   email: string;
@@ -47,7 +49,9 @@ export default function Page() {
         { withCredentials: true }
       );
 
-      if (loginResponse.status === 200) {
+      if (loginResponse.status === 404) {
+        setToastMessage({ message: "User not found", type: "error" });
+      } else if (loginResponse.status === 200) {
         setToastMessage({ message: "Login successful", type: "success" });
         router.push("/feed");
       }
@@ -61,15 +65,20 @@ export default function Page() {
     }
   };
 
+  const handleCloseToast = () => {
+    setToastMessage(null);
+  };
+
   return (
     <div
       className="flex flex-col md:flex-row h-screen bg-gradient-to-br from-slate-900 to-black text-white overflow-hidden font-sans"
       ref={parentRef}
     >
+      {isLoading && <LoadingSpinner />}
       {/* left section */}
       <div className="hidden md:block md:flex-1 relative">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-orange-900/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient-circle_at_center,_var(--tw-gradient-stops)] from-blue-500/10 via-transparent to-transparent" />
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a90e2' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           backgroundSize: '60px 60px',
@@ -151,21 +160,12 @@ export default function Page() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div
-          className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-            toastMessage.type === "success" ? "bg-blue-500" : "bg-orange-500"
-          }`}
-        >
-          <p className="text-white text-sm md:text-base">
-            {toastMessage.message}
-          </p>
-          <Button
-            onClick={() => setToastMessage(null)}
-            className="absolute top-1 right-1 text-white hover:text-blue-100"
-          >
-            ✕
-          </Button>
-        </div>
+        <ToastNew
+          title={toastMessage.type === "success" ? "Success" : "Error"}
+          message={toastMessage.message}
+          type={toastMessage.type}
+          onClose={handleCloseToast}
+        />
       )}
     </div>
   );
