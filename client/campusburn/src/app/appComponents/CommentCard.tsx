@@ -3,7 +3,7 @@ import axios from "axios";
 import { Trash2, UserIcon } from "lucide-react";
 import React from "react";
 
-//TODO: Types should be same as used in the backend
+//TODO: TYPES SHOULD BE SAME AS USED IN THE BACKEND
 
 function CommentCard({
   id,
