@@ -43,7 +43,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
   const { toast } = useToast();
   const userId = Cookies.get("currentUserId");
   
-  console.log("Pathname: ", pathname);
+  // console.log("Pathname: ", pathname);
 
   //FUNCTION TO LOGOUT THE USER
   const logoutUser = async () => {
