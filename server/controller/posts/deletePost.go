@@ -22,47 +22,73 @@ FLOW TO DELETE ANY POST:
 
 THINGS REQUIRED FROM THE FRONTEND TO DELETE A POST:
 1. Post ID
-2. Content
 3. UserID of the user with whom this post is associated.
 
 */
 
+type DeletePostRequest struct {
+	PostId uint `json:"postId"`
+	UserId uint `json:"userId"`
+}
+
 func DeletePost(c *fiber.Ctx) error {
 
-	userId, ok := c.Locals("userId").(string)
-	if !ok {
+	token := c.Cookies("token")
+	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"Error": "Unauthorized user in the delete post controller",
+			"Message": "Unauthorized user, please log in",
+		})
+	}
+
+	var req DeletePostRequest
+	if parsingError := c.BodyParser(&req); parsingError != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Invalid request body",
+		})
+	}
+
+	if req.PostId == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Wrong Post ID entered",
 		})
 	}
 
 	// FINDING THE USER IN THE DB
 	var currentUser model.User
-	userSearchErr := dbConnection.DB.Where("Email = ?", userId).First(&currentUser).Error
+	userSearchErr := dbConnection.DB.Where("ID = ?", req.UserId).First(&currentUser).Error
 	if userSearchErr != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"Error": userSearchErr.Error(),
 		})
 	}
 
-	var post model.Post
-	// CHECKING IF THE INCOMING DATA FROM THE REQUEST IS OKAY OR NOT
-	if parsingError := c.BodyParser(&post); parsingError != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"Error": "Invalid request body",
+	//FIND THE POST WITH THE ID
+	var currentPost model.Post
+	postSearchError := dbConnection.DB.Where("ID = ?", req.PostId).First(&currentPost).Error
+	if postSearchError != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"Message": "Post not found with this ID",
 		})
 	}
 
-	var checkID = currentUser.ID == post.UserID
+	var checkID = currentUser.ID == currentPost.UserID
 
 	if !checkID {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"Error": "This post is can only be deleted by the user who created it",
+			"Error": "This post can only be deleted by the user who created it",
 		})
 	}
 
-	// FINDING THIS POST_ID IN THE DATABASE
-	deletePostErr := dbConnection.DB.Where("ID = ?", post.ID).Delete(&post).Error
+	// First delete all comments associated with this post
+	deleteCommentsErr := dbConnection.DB.Where("post_id = ?", currentPost.ID).Delete(&model.Comment{}).Error
+	if deleteCommentsErr != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Error": "Error while deleting comments for this post",
+		})
+	}
+
+	// Then delete the post itself
+	deletePostErr := dbConnection.DB.Where("ID = ?", currentPost.ID).Delete(&currentPost).Error
 	if deletePostErr != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"Error": "Error while deleting the post",

@@ -55,7 +55,7 @@ func main() {
 
 	// CONTROLLERS RELATED TO POST
 	app.Post("/createPost", middleware.AuthRequired, posts.CreatePost)
-	app.Delete("/deletePost", middleware.AuthRequired, posts.DeletePost)
+	app.Post("/deletePost", middleware.AuthRequired, posts.DeletePost)
 	app.Put("/updatePost", middleware.AuthRequired, posts.UpdatePost)
 	app.Post("/likePost", posts.AddLike)
 	app.Post("/dislikePost", posts.AddDislike)

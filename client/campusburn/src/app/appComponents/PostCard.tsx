@@ -190,6 +190,27 @@ function PostCard({
     }
   };
 
+  //FUNCTION TO DELETE A POST
+  const deletePost = async (postId: number) => {
+    try {
+      console.log("post clicked: ", postId);
+      const deletePostResponse = await axios.post("http://localhost:4200/deletePost", {
+        PostId: postId,
+        UserId: currentUserId,
+      }, { withCredentials: true })
+      
+      if(deletePostResponse.status === 200){
+        console.log("post deleted: ", deletePostResponse);
+      } else {
+        console.log("error in try part");
+      }
+
+
+    } catch (error) {
+      console.error("Error while deleting your comment: ", error);
+    }
+  }
+
   useEffect(() => {
     getAllCommentsForThisPost();
     setIsCommentsOpen(false);
@@ -228,7 +249,7 @@ function PostCard({
           onClick={getAllCommentsForThisPost}
         >
           <MessageCircle className="w-4 h-4 text-green-500" />
-          <span>{commentsForThisPost!.length}</span>
+          <span>{commentsForThisPost ? commentsForThisPost.length : "0"}</span>
         </button>
       </div>
       {isCommentsOpen &&
@@ -281,6 +302,7 @@ function PostCard({
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
           aria-label="delete-comment"
+          onClick={() => deletePost(id)}
         >
           <Trash2 className="h-4 w-4" />
         </button>
