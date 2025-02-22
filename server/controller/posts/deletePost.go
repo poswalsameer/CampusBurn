@@ -87,6 +87,20 @@ func DeletePost(c *fiber.Ctx) error {
 		})
 	}
 
+	//Remove likes from the JOIN
+	if err := dbConnection.DB.Model(&currentPost).Association("LikedByUsers").Clear(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while clearing likes associated with this post",
+		})
+	}
+
+	//Remove dislikes from the JOIN
+	if err := dbConnection.DB.Model(&currentPost).Association("DislikedByUsers").Clear(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "Error while clearing dislikes associated with this post",
+		})
+	}
+
 	// Then delete the post itself
 	deletePostErr := dbConnection.DB.Where("ID = ?", currentPost.ID).Delete(&currentPost).Error
 	if deletePostErr != nil {
