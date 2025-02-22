@@ -31,7 +31,7 @@ import TopPosts from "../appComponents/TopPosts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Post, UserPost, CurrentUser } from '@/types/types';
 
 export default function Home() {
@@ -51,7 +51,6 @@ export default function Home() {
   
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
 
   //FUNCTION TO LOGOUT THE USER
   const logoutUser = async () => {
@@ -91,6 +90,7 @@ export default function Home() {
     }
 
     try {
+      toast.loading("Creating the post....");
       const createPostResponse = await axios.post(
         "http://localhost:4200/createPost",
         {"Content": currentPostData},
@@ -101,21 +101,20 @@ export default function Home() {
       console.log("Post created: ", createPostResponse);
 
       if( createPostResponse.status === 200 ){
-        toast({
-          title: "Post created successfully",
-        })
+        toast.success("Post created successfully");
         setPostCreated(!postCreated);
       }
       else{
-        toast({
-          title: "Cannot create your post at this moment",
-        })
+        toast.error("Error while creating the post");
         setPostCreated(!postCreated);
       }
     } 
     catch (error) {
       console.log("Error while creating a post: ", error);
+      toast.error("Error while creating the post");
       setPostCreated(!postCreated);
+    } finally {
+      toast.dismiss();
     }
 
   }

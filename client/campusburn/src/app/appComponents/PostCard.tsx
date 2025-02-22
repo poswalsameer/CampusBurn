@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast, useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Comments } from "@/types/types";
 import axios from "axios";
 import {
@@ -47,7 +47,7 @@ function PostCard({
   const [newComment, setNewComment] = useState<string>("");
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
 
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   const closeCommentBox = () => {
     setIsCommentsOpen(false);
@@ -74,9 +74,7 @@ function PostCard({
   // FUNCTION TO ADD A COMMENT
   const addComment = async () => {
     if (newComment === "") {
-      toast({
-        title: "Comment cannot be empty",
-      });
+      toast.warning("Comment cannot be left empty");
       return;
     }
 
@@ -97,9 +95,7 @@ function PostCard({
         setNewComment("");
         setNewCommentCreation(!newCommentCreation);
       } else {
-        toast({
-          title: "Comment added successfully",
-        });
+        toast.success("Comment added successfully");
         setIsCommentsOpen(false);
         setNewComment("");
         //TODO:Remove this log later
@@ -194,6 +190,7 @@ function PostCard({
   const deletePost = async (postId: number) => {
     try {
       console.log("post clicked: ", postId);
+      toast.loading("Deleting the post...");
       const deletePostResponse = await axios.post("http://localhost:4200/deletePost", {
         PostId: postId,
         UserId: currentUserId,
@@ -201,13 +198,17 @@ function PostCard({
       
       if(deletePostResponse.status === 200){
         console.log("post deleted: ", deletePostResponse);
+        toast.success("Post deleted successfully");
       } else {
         console.log("error in try part");
+        toast.error("Error while deleting the post");
       }
 
 
     } catch (error) {
       console.error("Error while deleting your comment: ", error);
+    } finally {
+      toast.dismiss();
     }
   }
 

@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea'
 import axios from 'axios'
 import type { CurrentUser, Post } from '@/types/types'
 import { usePathname, useRouter } from 'next/navigation'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import Cookies from 'js-cookie'
 import UpdateUserDialog from '@/components/update-user-dialog'
 
@@ -40,7 +40,6 @@ function CurrentUserProfilePage({params}: {params: any}) {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const userId = Cookies.get("currentUserId");
   
   // console.log("Pathname: ", pathname);
@@ -83,6 +82,7 @@ function CurrentUserProfilePage({params}: {params: any}) {
     }
 
     try {
+      toast.loading("Creating your post...");
       const createPostResponse = await axios.post(
         "http://localhost:4200/createPost",
         {"Content": currentPostData},
@@ -93,18 +93,17 @@ function CurrentUserProfilePage({params}: {params: any}) {
       console.log("Post created: ", createPostResponse);
 
       if( createPostResponse.status === 200 ){
-        toast({
-          title: "Post created successfully",
-        })
+        toast.success("Post created successfully");
       }
       else{
-        toast({
-          title: "Cannot create your post at this moment",
-        })
+        toast.error("Error while creating the post");
       }
     } 
     catch (error) {
       console.log("Error while creating a post: ", error);
+      toast.error("Error while creating the post");
+    } finally {
+      toast.dismiss();
     }
 
   }
