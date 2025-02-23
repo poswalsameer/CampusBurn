@@ -33,10 +33,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { Post, UserPost, CurrentUser } from '@/types/types';
+import { postStore } from "@/zustand/posts";
 
 export default function Home() {
   const [currentPostData, setCurrentPostData] = useState<string>('');
-  const [allPostsData, setAllPostsData] = useState<Post[] | undefined>([]);
+  // const [allPostsData, setAllPostsData] = useState<Post[] | undefined>([]);
   //THIS STATE WILL BE TOGGLED ON POST CREATION TO RUN THE EFFECT TO UPDATE THE POSTS IN THE UI
   const [postCreated, setPostCreated] = useState<boolean>(false);
   const [currentUserDetails, setCurrentUserDetails] = useState<CurrentUser>({
@@ -48,6 +49,8 @@ export default function Home() {
     comments: [],
     createdAt: new Date(),
   });
+
+  const { posts, setPosts } = postStore();
   
   const router = useRouter();
   const pathname = usePathname();
@@ -160,7 +163,7 @@ export default function Home() {
           throw new Error(`Error: Received status code ${allPostsResponse.status}`);
         }
 
-        setAllPostsData(allPostsResponse.data.data);
+        setPosts(allPostsResponse.data.data);
         //TODO:We need to remove this log later
         console.log("All Posts response: ", allPostsResponse.data);
       } catch (error) {
@@ -237,7 +240,7 @@ export default function Home() {
           {/* {[...Array(10)].map((_, i) => (
             <PostCard i={i} />
           ))} */}
-          {allPostsData?.map((post) => (
+          {posts?.map((post: any) => (
               <PostCard 
                 key={post.Id} 
                 id={post.Id}

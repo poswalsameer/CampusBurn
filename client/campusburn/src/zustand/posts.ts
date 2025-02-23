@@ -1,4 +1,9 @@
+import { Post } from '@/types/types'
 import { create } from 'zustand'
+
+interface PostStore {
+    Post: Post
+}
 
 const postStore = create<any>()((set) => ({
     //states
