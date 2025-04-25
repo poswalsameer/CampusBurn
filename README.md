@@ -17,6 +17,6 @@ We are using a diverse tech stack that includes:
 ### Project Setup:
 1. Clone the repository.
 2. Open in your code editor.
-3. To start the client-side application, `cd` into `.../client/campusburn` and run `npm i` to install all the dependencies, then run `npm run dev` to start the localhost.
-4. To start the server, `cd` into `.../server` and run `go run dbMigrate/migrate.go` for initial database migration and then run `go run main.go` to start the server.
+3. To start the client-side application, `cd` into `client/campusburn` and run `npm i` to install all the dependencies, then run `npm run dev` to start the localhost.
+4. To start the server, `cd` into `server` and run `go run dbMigrate/migrate.go` for initial database migration and then run `go run main.go` to start the server.
 5. Remember: For any server-side change, you have to start the server again by running `go run main.go` to make sure your changes are reflected.
